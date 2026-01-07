@@ -1,211 +1,186 @@
 import Link from "next/link";
-import { Dumbbell, Target, TrendingUp, Utensils, Calendar, Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Activity, Zap, Shield, TrendingUp, Users, Smartphone, Heart } from "lucide-react";
+import { Button } from "@/components/ui";
 
-export default function LandingPage() {
+export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/60">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              SummerFit
-            </span>
+    <div className="flex min-h-screen flex-col bg-black text-white selection:bg-[#ccff00] selection:text-black">
+      {/* Navigation */}
+      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+            <Activity className="h-6 w-6 text-[#ccff00]" />
+            <span className="text-xl font-bold tracking-tighter">SummerFit</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              Iniciar sesión
+            <Link href="/login" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">
+              Iniciar Sesión
             </Link>
-            <Link 
-              href="/register" 
-              className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-            >
-              Comenzar gratis
+            <Link href="/register">
+              <Button className="bg-[#ccff00] text-black hover:bg-[#bbe000] font-bold rounded-full px-6">
+                Regístrate
+              </Button>
             </Link>
           </div>
         </div>
       </nav>
 
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full text-purple-700 font-semibold text-sm mb-8">
-            <Sparkles className="h-4 w-4" />
-            Tu coach personal de fitness
-          </div>
-          <h1 className="text-6xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent leading-tight">
-            Transforma tu cuerpo
-            <br />
-            este verano
-          </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Dashboard premium de fitness con seguimiento inteligente, calculadora de objetivos, 
-            generador de recetas y recomendador de suplementos.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/register" 
-              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition-all inline-flex items-center justify-center gap-2"
-            >
-              Comenzar ahora
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-            <Link 
-              href="/login" 
-              className="px-8 py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-bold text-lg hover:border-purple-300 transition-all"
-            >
-              Ver demo
-            </Link>
-          </div>
+      {/* Hero Section */}
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/hero-bg.png"
+            alt="Jóvenes entrenando"
+            fill
+            className="object-cover opacity-60"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-black" />
         </div>
-      </section>
 
-      <section className="py-20 px-6 bg-white/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Todo lo que necesitas en un solo lugar</h2>
-            <p className="text-xl text-gray-600">Herramientas profesionales para alcanzar tus objetivos</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Target,
-                title: "Calculadora de Objetivos",
-                description: "Proyecciones científicas con fecha estimada, velocidad saludable y warnings personalizados."
-              },
-              {
-                icon: TrendingUp,
-                title: "Dashboard Premium",
-                description: "Métricas en tiempo real, gráficas de progreso, gauge de avance y análisis de adherencia."
-              },
-              {
-                icon: Utensils,
-                title: "Generador de Recetas",
-                description: "Combina alimentos según tus macros, calorías y tipo de dieta con un solo clic."
-              },
-              {
-                icon: Calendar,
-                title: "Registro Diario",
-                description: "Trackea peso, calorías, macros y ejercicio con buscador inteligente de alimentos."
-              },
-              {
-                icon: Dumbbell,
-                title: "Planes Personalizados",
-                description: "Ajustes automáticos según tu género, edad, actividad y objetivo fitness."
-              },
-              {
-                icon: Sparkles,
-                title: "Suplementos IA",
-                description: "Recomendaciones inteligentes de suplementos según tu objetivo y dieta."
-              }
-            ].map((feature, idx) => (
-              <div 
-                key={idx} 
-                className="p-8 bg-white rounded-2xl border border-gray-200 hover:border-purple-300 hover:shadow-xl transition-all"
-              >
-                <div className="h-12 w-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white mb-4">
-                  <feature.icon className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold mb-6">¿Por qué SummerFit?</h2>
-              <div className="space-y-4">
-                {[
-                  "Autenticación segura con Supabase",
-                  "Persistencia de datos en la nube",
-                  "UI premium con glassmorphism y gradientes",
-                  "Responsive mobile-first design",
-                  "Cálculos científicos validados",
-                  "Base de datos de alimentos completa",
-                  "Gráficas interactivas con Plotly",
-                  "Modo demo sin registro"
-                ].map((benefit, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0" />
-                    <span className="text-lg text-gray-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <div className="mx-auto max-w-4xl space-y-8">
+            <div className="inline-flex items-center rounded-full border border-[#ccff00]/30 bg-[#ccff00]/10 px-4 py-1.5 backdrop-blur-sm">
+              <Zap className="mr-2 h-4 w-4 text-[#ccff00]" />
+              <span className="text-sm font-bold text-[#ccff00] uppercase tracking-wide">La App #1 para Jóvenes</span>
             </div>
-            <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl p-12 text-white">
-              <h3 className="text-3xl font-bold mb-6">Comienza hoy</h3>
-              <p className="text-lg mb-8 text-purple-100">
-                Únete a miles de usuarios que ya están transformando su cuerpo con SummerFit.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl font-bold">1</span>
-                  </div>
-                  <span className="text-lg">Crea tu cuenta gratis</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl font-bold">2</span>
-                  </div>
-                  <span className="text-lg">Configura tu perfil</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl font-bold">3</span>
-                  </div>
-                  <span className="text-lg">Alcanza tus objetivos</span>
-                </div>
-              </div>
-              <Link 
-                href="/register" 
-                className="mt-8 block w-full py-4 bg-white text-purple-600 rounded-xl font-bold text-center hover:shadow-2xl transition-all"
-              >
-                Comenzar ahora
+
+            <h1 className="text-5xl font-black leading-tight tracking-tighter md:text-7xl lg:text-8xl">
+              TU MEJOR VERSIÓN <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ccff00] to-[#00ff9d]">
+                EMPIEZA HOY
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-lg text-gray-300 md:text-xl leading-relaxed">
+              Olvídate de las rutinas aburridas. SummerFit es la plataforma diseñada para nuestra generación.
+              Entrena inteligente, come rico y consigue el cuerpo que quieres sin sacrificios imposibles.
+            </p>
+
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <Link href="/register" className="w-full sm:w-auto">
+                <Button className="h-14 w-full bg-[#ccff00] text-black hover:scale-105 transition-transform hover:bg-[#bbe000] text-lg font-black rounded-full px-8 sm:min-w-[200px]">
+                  EMPEZAR GRATIS
+                </Button>
+              </Link>
+              <Link href="/login" className="w-full sm:w-auto">
+                <Button variant="outline" className="h-14 w-full border-white/20 hover:bg-white/10 text-white text-lg font-bold rounded-full px-8 sm:min-w-[200px]">
+                  YA TENGO CUENTA
+                </Button>
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-6 bg-gradient-to-r from-purple-600 to-pink-600">
-        <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-5xl font-bold mb-6">¿Listo para transformarte?</h2>
-          <p className="text-xl mb-10 text-purple-100">
-            Empieza tu viaje fitness hoy. Sin tarjeta de crédito requerida.
-          </p>
-          <Link 
-            href="/register" 
-            className="inline-flex items-center gap-2 px-10 py-5 bg-white text-purple-600 rounded-xl font-bold text-xl hover:shadow-2xl transition-all"
-          >
-            Crear cuenta gratis
-            <ArrowRight className="h-6 w-6" />
-          </Link>
+      {/* Value Proposition / Features */}
+      <section className="bg-black py-24 relative overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-[#ccff00]/20 rounded-full blur-[128px] -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#00ff9d]/10 rounded-full blur-[128px] translate-x-1/3 translate-y-1/3" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+
+            <div className="order-2 lg:order-1 relative">
+              <div className="relative mx-auto w-full max-w-[400px] aspect-[9/19]">
+                <Image
+                  src="/app-mockup.png"
+                  alt="App Interface"
+                  fill
+                  className="object-contain drop-shadow-[0_0_50px_rgba(204,255,0,0.3)]"
+                />
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2 space-y-12">
+              <div className="space-y-4">
+                <h2 className="text-4xl font-black tracking-tighter md:text-5xl">
+                  MÁS QUE UNA APP, <br />
+                  <span className="text-[#ccff00]">TU ENTRENADOR DE BOLSILLO</span>
+                </h2>
+                <p className="text-xl text-gray-400">
+                  Hemos simplificado todo lo complejo del fitness. Sin hojas de cálculo, sin confusión. Solo resultados.
+                </p>
+              </div>
+
+              <div className="grid gap-8 sm:grid-cols-2">
+                <FeatureCard
+                  icon={Smartphone}
+                  title="Tracking Inteligente"
+                  desc="Registra tus comidas y entrenos en segundos. La app calcula todo por ti."
+                />
+                <FeatureCard
+                  icon={TrendingUp}
+                  title="Progreso Real"
+                  desc="Visualiza tus cambios con gráficos futuristas que te mantendrán motivado."
+                />
+                <FeatureCard
+                  icon={Shield}
+                  title="Privacidad Total"
+                  desc="Tus datos son tuyos. Entorno seguro y protegido para que solo te preocupes de mejorar."
+                />
+                <FeatureCard
+                  icon={Heart}
+                  title="Salud Integral"
+                  desc="Recomendaciones de suplementos y dietas adaptadas a tu estilo de vida."
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <footer className="py-12 px-6 bg-gray-900 text-gray-400">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-              <Sparkles className="h-5 w-5" />
+      {/* Social Proof / Call to Action */}
+      <section className="border-t border-white/10 bg-zinc-900 py-24">
+        <div className="container mx-auto px-4 text-center">
+          <div className="mx-auto max-w-3xl space-y-8">
+            <Users className="mx-auto h-16 w-16 text-[#ccff00]" />
+            <h2 className="text-4xl font-black tracking-tighter md:text-5xl">
+              ¿LISTO PARA EL CAMBIO?
+            </h2>
+            <p className="text-xl text-gray-400">
+              Únete a miles de personas que ya están transformando su vida con SummerFit.
+              Tu futuro empieza cuando tú decides.
+            </p>
+            <div className="pt-8">
+              <Link href="/register">
+                <Button className="h-16 bg-white text-black hover:bg-gray-200 text-xl font-black rounded-full px-12 shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_50px_rgba(255,255,255,0.5)] transition-all">
+                  CREAR CUENTA AHORA <ArrowRight className="ml-2 h-6 w-6" />
+                </Button>
+              </Link>
             </div>
-            <span className="text-xl font-bold text-white">SummerFit</span>
           </div>
-          <p className="text-sm mb-4">
-            © 2025 SummerFit. Todos los derechos reservados.
-          </p>
-          <p className="text-xs text-gray-500">
-            Esta app es solo informativa. Consulta a un profesional médico antes de hacer cambios en tu dieta o ejercicio.
-          </p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-black py-8 border-t border-white/10">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm">
+          <p>© 2024 SummerFit Premium. Todos los derechos reservados.</p>
+          <div className="flex gap-6 mt-4 md:mt-0">
+            <Link href="#" className="hover:text-[#ccff00]">Términos</Link>
+            <Link href="#" className="hover:text-[#ccff00]">Privacidad</Link>
+            <Link href="#" className="hover:text-[#ccff00]">Soporte</Link>
+          </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
+  return (
+    <div className="group rounded-2xl bg-white/5 p-6 hover:bg-white/10 transition-colors border border-white/5 hover:border-[#ccff00]/50">
+      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#ccff00]/10 text-[#ccff00] group-hover:bg-[#ccff00] group-hover:text-black transition-colors">
+        <Icon className="h-6 w-6" />
+      </div>
+      <h3 className="mb-2 text-xl font-bold text-white group-hover:text-[#ccff00] transition-colors">{title}</h3>
+      <p className="text-gray-400 text-sm leading-relaxed">
+        {desc}
+      </p>
     </div>
   );
 }
