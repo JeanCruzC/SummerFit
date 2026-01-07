@@ -180,6 +180,91 @@ export function calculateProjection(
 }
 
 /**
+ * Calculate goal projection INCLUDING exercise calories
+ * This is the enhanced version that factors in workout plan calories
+ */
+export function calculateProjectionWithExercise(
+    currentWeight: number,
+    targetWeight: number,
+    tdee: number,
+    goal: 'Definir' | 'Mantener' | 'Volumen',
+    mode: 'conservador' | 'moderado' | 'acelerado' = 'moderado',
+    weeklyExerciseCalories: number = 0 // NEW: calories burned from workout plan
+): GoalProjection & { exercise_boost: number; total_deficit: number } {
+    const targetCalories = calculateTargetCalories(tdee, goal, mode);
+
+    // Base deficit from diet
+    const dailyDeficit = tdee - targetCalories;
+
+    // ADD exercise calories (distributed across the week)
+    const dailyExerciseBonus = weeklyExerciseCalories / 7;
+
+    // TOTAL deficit = diet + exercise
+    const totalDailyDeficit = dailyDeficit + dailyExerciseBonus;
+
+    // 7700 kcal ≈ 1 kg of body fat
+    const weeklyDeficit = totalDailyDeficit * 7;
+    const weeklyRate = Math.abs(weeklyDeficit / 7700);
+
+    const weightDiff = Math.abs(currentWeight - targetWeight);
+    const weeks = weeklyRate > 0 ? Math.ceil(weightDiff / weeklyRate) : 0;
+    const months = Math.round(weeks / 4.33 * 10) / 10;
+
+    // Calculate target date
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + weeks * 7);
+
+    // Determine risk level
+    let risk_level: 'safe' | 'moderate' | 'high' = 'safe';
+    let risk_msg = 'Ritmo saludable y sostenible';
+    let color = '#22c55e'; // green
+    const warnings: string[] = [];
+
+    if (weeklyRate > 1) {
+        risk_level = 'high';
+        risk_msg = 'Ritmo agresivo - Riesgo para la salud';
+        color = '#ef4444'; // red
+        warnings.push('⚠️ Un ritmo mayor a 1 kg/semana puede causar pérdida muscular y problemas metabólicos.');
+    } else if (weeklyRate > 0.75) {
+        risk_level = 'moderate';
+        risk_msg = 'Ritmo acelerado - Monitorear de cerca';
+        color = '#f59e0b'; // amber
+        warnings.push('Este ritmo es exigente. Asegúrate de mantener una buena nutrición.');
+    }
+
+    if (targetCalories < 1200 && goal === 'Definir') {
+        risk_level = 'high';
+        warnings.push('⚠️ Las calorías son muy bajas. Mínimo recomendado: 1200 kcal para mujeres, 1500 kcal para hombres.');
+    }
+
+    if (Math.abs(dailyDeficit) > 1000) {
+        risk_level = 'high';
+        warnings.push('⚠️ Déficit calórico extremo. Esto puede afectar tu metabolismo y energía.');
+    }
+
+    // Add warning if exercise is too intense
+    if (dailyExerciseBonus > 500) {
+        warnings.push('💪 Plan de ejercicio muy intenso. Asegúrate de descansar y comer suficiente proteína.');
+    }
+
+    return {
+        daily_calories: targetCalories,
+        weekly_rate: Math.round(weeklyRate * 100) / 100,
+        weeks,
+        months,
+        target_date: targetDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }),
+        risk_level,
+        risk_msg,
+        color,
+        warnings,
+        // NEW fields
+        exercise_boost: Math.round(dailyExerciseBonus),
+        total_deficit: Math.round(totalDailyDeficit),
+    };
+}
+
+
+/**
  * Calculate all health metrics for a user profile
  */
 export function calculateHealthMetrics(

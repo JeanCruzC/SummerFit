@@ -145,3 +145,60 @@ export interface RecipeSuggestion {
     totals: MacroGrams;
     diet_type: DietType;
 }
+
+// Exercise system types
+export interface Exercise {
+    id: number;
+    slug: string;
+    title: string;
+    description?: string;
+    type?: 'Fuerza' | 'Cardio' | 'Flexibilidad';
+    level?: 'Principiante' | 'Intermedio' | 'Avanzado';
+    body_part?: string;
+    equipment_required?: string[];
+    training_location?: string[];
+    met?: number; // Metabolic Equivalent of Task
+    ranking_score?: number;
+    rating?: number;
+    rating_desc?: string;
+    created_at?: string;
+}
+
+export interface UserEquipment {
+    id?: number;
+    user_id: string;
+    equipment_type: string; // 'Barra', 'Mancuernas', 'Bandas', etc.
+    quantity: number; // Cuántos tiene
+    weight_kg?: number; // Para pesas
+    notes?: string;
+    created_at?: string;
+}
+
+export interface WorkoutPlan {
+    id?: number;
+    user_id: string;
+    name: string;
+    description?: string;
+    days_per_week: number;
+    total_met_hours: number;
+    estimated_calories_weekly: number;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface WorkoutPlanExercise {
+    id?: number;
+    workout_plan_id: number;
+    exercise_id: number;
+    day_of_week: number; // 1-7
+    sets: number;
+    reps?: number;
+    duration_minutes?: number;
+    rest_seconds: number;
+    notes?: string;
+    order_in_day: number;
+    created_at?: string;
+    // Populated by join
+    exercise?: Exercise;
+}
