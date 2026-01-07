@@ -1,243 +1,247 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Star, CheckCircle2, Zap, Smartphone, Utensils, TrendingUp, ChevronDown } from "lucide-react";
+import { ArrowRight, Star, Zap, Smartphone, Utensils, TrendingUp, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui";
+import { useState, useEffect } from "react";
 
 export default function Landing() {
-  return (
-    <div className="flex min-h-screen flex-col bg-black text-white selection:bg-[#ccff00] selection:text-black font-sans">
+  const [scrolled, setScrolled] = useState(false);
 
-      {/* 1. Navbar Premium */}
-      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="container mx-auto flex h-20 items-center justify-between px-6">
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div className="flex min-h-screen flex-col bg-black text-white selection:bg-[#ccff00] selection:text-black font-sans overflow-x-hidden">
+
+      {/* Navbar Premium Sticky */}
+      <nav className={`fixed top-0 z-50 w-full transition-all duration-300 ${scrolled ? "bg-black/90 backdrop-blur-xl border-b border-white/10 py-4" : "bg-transparent py-6"}`}>
+        <div className="container mx-auto flex items-center justify-between px-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ccff00] text-black">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ccff00] text-black shadow-[0_0_20px_rgba(204,255,0,0.4)]">
               <Zap className="h-6 w-6 fill-current" />
             </div>
             <span className="text-2xl font-black tracking-tighter">SummerFit</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <Link href="#features" className="hover:text-white transition-colors">Funcionalidades</Link>
-            <Link href="#testimonials" className="hover:text-white transition-colors">Resultados</Link>
-            <Link href="#pricing" className="hover:text-white transition-colors">Precios</Link>
+          <div className="hidden md:flex items-center gap-8 text-sm font-bold text-gray-400">
+            <Link href="#como-funciona" className="hover:text-white hover:text-[#ccff00] transition-colors">CÓMO FUNCIONA</Link>
+            <Link href="#resultados" className="hover:text-white hover:text-[#ccff00] transition-colors">RESULTADOS</Link>
+            <Link href="#faq" className="hover:text-white hover:text-[#ccff00] transition-colors">FAQ</Link>
           </div>
 
           <div className="flex items-center gap-4">
             <Link href="/login" className="hidden sm:block text-sm font-bold text-white hover:text-[#ccff00] transition-colors">
-              INICIAR SESIÓN
+              LOGIN
             </Link>
             <Link href="/register">
-              <Button className="h-10 bg-[#ccff00] text-black hover:bg-[#bbe000] font-black rounded-full px-6 text-sm tracking-wide transform hover:scale-105 transition-all">
-                EMPEZAR AHORA
+              <Button className="h-10 bg-[#ccff00] text-black hover:bg-[#bbe000] font-black rounded-full px-6 text-sm tracking-wide transform hover:scale-105 transition-all shadow-[0_0_20px_rgba(204,255,0,0.3)]">
+                EMPEZAR
               </Button>
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* 2. Hero Section: Fitia Style (Split Layout) */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      {/* Hero Section: Centered & Animated */}
+      <section className="relative pt-40 pb-20 lg:pt-52 lg:pb-32 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]">
+        {/* Animated Background Elements */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ccff00]/10 rounded-full blur-[120px] animate-pulse" />
 
-            {/* Left: Copy & CTA */}
-            <div className="space-y-8 z-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#ccff00]/30 bg-[#ccff00]/5 px-4 py-2 backdrop-blur-sm">
-                <Star className="h-4 w-4 text-[#ccff00] fill-current" />
-                <span className="text-xs font-bold text-[#ccff00] tracking-widest uppercase">La app #1 de Fitness Juvenil</span>
-              </div>
+        <div className="container relative z-10 mx-auto px-6 text-center">
 
-              <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1]">
-                TU CUERPO <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ccff00] to-emerald-400">
-                  DE VERANO
-                </span> <br />
-                TODO EL AÑO.
-              </h1>
-
-              <p className="text-xl text-gray-400 max-w-lg leading-relaxed">
-                Logra tus calorías y macros sin sufrir. La alternativa inteligente a las dietas estrictas, diseñada para tu estilo de vida.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Link href="/register" className="w-full sm:w-auto">
-                  <Button className="h-14 w-full sm:w-auto bg-[#ccff00] text-black hover:bg-[#bbe000] text-lg font-black rounded-full px-10 shadow-[0_0_40px_rgba(204,255,0,0.4)] hover:shadow-[0_0_60px_rgba(204,255,0,0.6)] transition-all transform hover:-translate-y-1">
-                    OBTENER MI PLAN
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Social Proof Mini */}
-              <div className="flex items-center gap-4 pt-4">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-10 w-10 rounded-full border-2 border-black bg-gray-800" />
-                  ))}
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex text-[#ccff00]">
-                    {[1, 2, 3, 4, 5].map((i) => <Star key={i} className="h-4 w-4 fill-current" />)}
-                  </div>
-                  <span className="text-sm font-medium text-gray-400">4.9/5 por +10k usuarios</span>
-                </div>
-              </div>
+          <div className="animate-fade-in-up space-y-8 flex flex-col items-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#ccff00]/30 bg-[#ccff00]/5 px-5 py-2 backdrop-blur-sm animate-bounce-slow">
+              <Star className="h-4 w-4 text-[#ccff00] fill-current" />
+              <span className="text-xs font-bold text-[#ccff00] tracking-widest uppercase">La alternativa #1 a Fitia</span>
             </div>
 
-            {/* Right: Premium Mockup */}
-            <div className="relative z-10 flex justify-center lg:justify-end">
-              <div className="relative w-[300px] md:w-[380px] aspect-[9/19] animate-float">
-                <div className="absolute inset-0 bg-[#ccff00] blur-[120px] opacity-20" />
-                <Image
-                  src="/app-mockup.png"
-                  alt="App Interface"
-                  fill
-                  className="object-contain relative z-10 drop-shadow-2xl"
-                />
+            {/* Headline */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] max-w-5xl mx-auto">
+              TU CUERPO <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ccff00] via-[#eeff00] to-[#ccff00] bg-300% animate-gradient">
+                DE VERANO
+              </span> <br />
+              TODO EL AÑO.
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              La única app diseñada para jóvenes que quieren resultados reales.
+              <span className="text-white font-bold"> Sin dietas aburridas. Sin restricciones absurdas.</span>
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 w-full justify-center">
+              <Link href="/register" className="w-full sm:w-auto">
+                <Button className="h-16 w-full sm:w-auto bg-[#ccff00] text-black hover:bg-[#bbe000] text-xl font-black rounded-full px-12 shadow-[0_0_40px_rgba(204,255,0,0.5)] hover:shadow-[0_0_60px_rgba(204,255,0,0.7)] transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95">
+                  CREAR MI PLAN GRATIS
+                </Button>
+              </Link>
+            </div>
+
+            {/* Social Proof */}
+            <div className="flex items-center gap-3 pt-6 opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex text-[#ccff00]">
+                {[1, 2, 3, 4, 5].map((i) => <Star key={i} className="h-5 w-5 fill-current" />)}
               </div>
+              <span className="text-sm font-bold text-gray-300">4.9/5 por +10,000 usuarios</span>
+            </div>
+          </div>
+
+          {/* Floating App Mockup */}
+          <div className="mt-16 relative mx-auto w-full max-w-[1000px] flex justify-center animate-fade-in-up delay-300">
+            <div className="relative w-[300px] md:w-[400px] aspect-[9/18] transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700 z-10">
+              <Image
+                src="/app-mockup.png"
+                alt="App Interface"
+                fill
+                className="object-contain drop-shadow-2xl"
+              />
+            </div>
+            {/* Secondary phone for depth */}
+            <div className="absolute top-12 right-[10%] w-[280px] md:w-[350px] aspect-[9/18] transform rotate-[10deg] opacity-50 blur-[2px] z-0 hidden md:block">
+              <Image
+                src="/app-mockup.png"
+                alt="App Interface Depth"
+                fill
+                className="object-contain drop-shadow-2xl grayscale"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Social Proof Banner */}
-      <section className="border-y border-white/5 bg-white/5 py-10">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-8">Únete a la revolución fitness</p>
-          <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-            {/* Fake Logos for "Authority" */}
-            <span className="text-2xl font-black text-white">MEN'S HEALTH</span>
-            <span className="text-2xl font-black text-white">TEEN VOGUE</span>
-            <span className="text-2xl font-black text-white">NUTRITION.IO</span>
-            <span className="text-2xl font-black text-white">FITNESS+</span>
+      {/* Brands Ticker */}
+      <section className="bg-white/5 border-y border-white/5 py-8 overflow-hidden">
+        <div className="container mx-auto px-6">
+          <p className="text-center text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-6">Mencionado en</p>
+          <div className="flex justify-center flex-wrap gap-12 md:gap-20 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+            {["MEN'S HEALTH", "TEEN VOGUE", "VICE", "BUZZFEED", "IGN"].map(brand => (
+              <span key={brand} className="text-xl font-black text-white">{brand}</span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 4. Feature Grid (Fitia Style) */}
-      <section id="features" className="py-24 relative overflow-hidden">
+      {/* Feature Grid: Centered & Clean */}
+      <section id="como-funciona" className="py-32 relative">
         <div className="container mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-6">
-              NO ES MAGIA. <span className="text-[#ccff00]">ES CIENCIA.</span>
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
+              TECNOLOGÍA <span className="text-[#ccff00]">VS</span> VOLUNTAD
             </h2>
             <p className="text-xl text-gray-400">
-              Olvídate de contar calorías manualmente. Nuestra tecnología hace el trabajo sucio por ti.
+              No necesitas "más fuerza de voluntad". Necesitas un sistema que funcione.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <FeatureCard
               icon={Utensils}
-              title="Plan de Comidas Automático"
-              desc="Generamos menús deliciosos basados en tus gustos y objetivos calóricos. ¿No te gusta algo? Cámbialo con un click."
+              title="Comidas Que Te Gustan"
+              desc="El algoritmo aprende qué te gusta comer y ajusta tus macros automáticamente. Cero sufrimiento."
+              delay="0"
             />
             <FeatureCard
               icon={Smartphone}
-              title="Escáner de Alimentos"
-              desc="Base de datos con +14,000 productos. Escanea, registra y listo. Tracking en menos de 10 segundos."
+              title="Escáner Ultra-Rápido"
+              desc="Apunta, dispara y listo. Reconocimiento de alimentos con IA para que tardar menos de 10s."
+              delay="100"
             />
             <FeatureCard
               icon={TrendingUp}
-              title="Proyecciones Reales"
-              desc="Sabrás exactamente cuándo llegarás a tu meta. Ajusta la velocidad de tu progreso según tu motivación."
+              title="Tu Cuerpo en Datos"
+              desc="Gráficos de nivel NASA para entender cómo tu cuerpo reacciona a cada caloría y entreno."
+              delay="200"
             />
           </div>
         </div>
       </section>
 
-      {/* 5. Steps / "How it Works" */}
-      <section className="py-24 bg-zinc-900/50">
+      {/* Step by Step - Visual */}
+      <section className="py-32 bg-zinc-900/50 border-y border-white/5">
         <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="relative aspect-square rounded-3xl overflow-hidden border border-white/10 bg-black">
-                <Image src="/hero-bg.png" alt="Lifestyle" fill className="object-cover opacity-80" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                <div className="absolute bottom-8 left-8 right-8">
-                  <div className="bg-[#ccff00] text-black text-sm font-bold px-3 py-1 rounded-full w-fit mb-4">CASO DE ÉXITO</div>
-                  <p className="text-2xl font-bold">"Gracias a SummerFit entendí que no tenía que dejar de comer lo que me gusta, solo aprender a contar."</p>
-                  <p className="mt-2 text-gray-400 font-medium">— Alex, 19 años (-8kg en 3 meses)</p>
-                </div>
-              </div>
-            </div>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-4">ES RIDÍCULAMENTE <span className="text-[#ccff00]">FÁCIL</span></h2>
+          </div>
 
-            <div className="order-1 lg:order-2 space-y-12">
-              <h2 className="text-4xl font-black tracking-tighter">EL CAMINO MÁS FÁCIL <br /> PARA <span className="text-[#ccff00]">BAJAR DE PESO</span></h2>
+          <div className="grid md:grid-cols-3 gap-12 text-center max-w-5xl mx-auto relative">
+            {/* Connecting Line */}
+            <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-transparent via-[#ccff00]/30 to-transparent" />
 
-              <div className="space-y-8">
-                <Step
-                  number="01"
-                  title="Calcula tus Requerimientos"
-                  desc="Ingresa tus datos y obtén tu TDEE y déficit ideal al instante."
-                />
-                <Step
-                  number="02"
-                  title="Sigue tu Plan Diario"
-                  desc="Come lo que quieras, siempre que encaje en tus macros. Nosotros te guiamos."
-                />
-                <Step
-                  number="03"
-                  title="Mira tu Transformación"
-                  desc="Gráficos detallados de cómo tu cuerpo cambia semana a semana."
-                />
-              </div>
-            </div>
+            <Step number="1" title="Crea tu Perfil" desc="Dinos tu edad, peso y objetivo. Calculamos tus números mágicos." />
+            <Step number="2" title="Sigue el Plan" desc="Come rico. Registra rápido. Entrena inteligente." />
+            <Step number="3" title="Evoluciona" desc="Mira cómo tu cuerpo cambia semana tras semana." />
           </div>
         </div>
       </section>
 
-      {/* 6. FAQ Section */}
-      <section className="py-24">
-        <div className="container mx-auto px-6 max-w-3xl">
-          <h2 className="text-3xl font-black tracking-tighter text-center mb-12">PREGUNTAS FRECUENTES</h2>
-          <div className="space-y-4">
-            <FaqItem q="¿Es adecuado para adolescentes?" a="100%. Diseñamos las dietas priorizando el crecimiento y la energía, evitando déficits agresivos." />
-            <FaqItem q="¿Necesito ir al gimnasio?" a="No es obligatorio. Puedes elegir planes para casa, cardio o simplemente control de alimentación." />
-            <FaqItem q="¿La app es gratuita?" a="Tenemos un plan gratuito de por vida y opciones Premium para funciones avanzadas de IA." />
+      {/* Image Showcase */}
+      <section id="resultados" className="py-0 relative h-[600px] md:h-[800px]">
+        <Image src="/hero-bg.png" alt="Lifestyle" fill className="object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        <div className="absolute inset-0 flex items-end justify-center pb-32">
+          <div className="text-center space-y-6 px-6">
+            <div className="inline-block bg-[#ccff00] text-black font-black text-sm px-4 py-1 rounded-full uppercase tracking-wider">Resultados Reales</div>
+            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
+              ÚNETE AL <br /> MOVIMIENTO
+            </h2>
+            <p className="text-xl text-gray-200 max-w-md mx-auto">
+              No estás solo. Miles de jóvenes ya están consiguiendo su mejor versión.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* 7. Footer CTA */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#ccff00] z-0" />
-        <div className="absolute inset-0 bg-[url('/hero-bg.png')] opacity-10 bg-cover bg-center mix-blend-overlay" />
+      {/* FAQ */}
+      <section id="faq" className="py-32 max-w-3xl mx-auto px-6">
+        <h2 className="text-3xl font-black tracking-tighter text-center mb-12">DUDAS COMUNES</h2>
+        <div className="space-y-4">
+          <FaqItem q="¿Funciona para perder grasa?" a="Absolutamente. Es nuestra especialidad. Creamos un déficit calórico cómodo que prioriza la pérdida de grasa manteniendo el músculo." />
+          <FaqItem q="¿Es seguro para adolescentes?" a="Sí. No promovemos dietas extremas. Nos enfocamos en nutrientes de calidad y hábitos sostenibles para el crecimiento." />
+          <FaqItem q="¿Tengo que pagar?" a="El registro es 100% gratuito. Tienes acceso a todas las funciones esenciales sin pagar un centavo." />
+        </div>
+      </section>
 
-        <div className="container relative z-10 mx-auto px-6 text-center">
-          <h2 className="text-5xl md:text-7xl font-black text-black tracking-tighter mb-8 leading-[0.9]">
-            EMPIEZA TU <br /> TRANSFORMACIÓN
+      {/* Footer CTA Big */}
+      <section className="py-24 relative overflow-hidden bg-[#ccff00] text-black text-center">
+        <div className="container mx-auto px-6 relative z-10">
+          <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
+            EMPIEZA <br /> AHORA
           </h2>
           <Link href="/register">
-            <Button className="h-16 bg-black text-white hover:bg-gray-900 text-xl font-black rounded-full px-12 shadow-2xl hover:scale-105 transition-all">
+            <Button className="h-20 bg-black text-white hover:bg-zinc-800 text-2xl font-black rounded-full px-16 shadow-2xl hover:scale-105 transition-all w-full md:w-auto">
               CREAR CUENTA GRATIS
             </Button>
           </Link>
-          <p className="mt-6 text-black/60 font-medium">Sin tarjeta de crédito requerida</p>
+          <p className="mt-6 font-bold opacity-60 text-sm tracking-widest uppercase">Sin letra chica. Cancela cuando quieras.</p>
         </div>
       </section>
 
-      <footer className="bg-black py-12 border-t border-white/10">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-gray-500">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <Zap className="h-5 w-5 text-[#ccff00]" />
-            <span className="font-bold text-white">SummerFit Premium</span>
-          </div>
-          <p className="text-sm">© 2024 SummerFit. Hecho para ganar.</p>
+      <footer className="bg-black py-12">
+        <div className="container mx-auto px-6 text-center text-gray-600 text-sm">
+          <p>© 2024 SummerFit. The Next Gen Fitness App.</p>
         </div>
       </footer>
     </div>
   );
 }
 
-function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
+function FeatureCard({ icon: Icon, title, desc, delay }: { icon: any, title: string, desc: string, delay: string }) {
   return (
-    <div className="group p-8 rounded-3xl bg-zinc-900 border border-white/5 hover:border-[#ccff00]/50 transition-all duration-300 hover:bg-zinc-800/50">
-      <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ccff00]/10 text-[#ccff00] group-hover:scale-110 transition-transform">
-        <Icon className="h-7 w-7" />
+    <div className="group p-8 rounded-[2rem] bg-zinc-900 border border-white/5 hover:border-[#ccff00] transition-all duration-300 hover:shadow-[0_0_30px_rgba(204,255,0,0.1)] text-center relative overflow-hidden">
+      <div className={`absolute top-0 left-0 w-full h-1 bg-[#ccff00] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
+      <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-white group-hover:bg-[#ccff00] group-hover:text-black transition-all duration-300 mb-8">
+        <Icon className="h-10 w-10" />
       </div>
-      <h3 className="mb-3 text-2xl font-bold text-white">{title}</h3>
-      <p className="text-gray-400 leading-relaxed">
+      <h3 className="mb-4 text-2xl font-black text-white">{title}</h3>
+      <p className="text-gray-400 leading-relaxed font-medium">
         {desc}
       </p>
     </div>
@@ -246,24 +250,30 @@ function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, de
 
 function Step({ number, title, desc }: { number: string, title: string, desc: string }) {
   return (
-    <div className="flex gap-6">
-      <div className="text-5xl font-black text-zinc-800">{number}</div>
-      <div>
-        <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-400">{desc}</p>
+    <div className="flex flex-col items-center relative z-10">
+      <div className="h-16 w-16 bg-black border-2 border-[#ccff00] rounded-full flex items-center justify-center text-2xl font-black text-[#ccff00] mb-6 shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+        {number}
       </div>
+      <h3 className="text-xl font-black text-white mb-2 uppercase tracking-wide">{title}</h3>
+      <p className="text-gray-400 max-w-xs">{desc}</p>
     </div>
   );
 }
 
 function FaqItem({ q, a }: { q: string, a: string }) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="border-b border-white/10 pb-6">
-      <div className="flex justify-between items-center cursor-pointer group">
-        <h3 className="text-lg font-bold text-white group-hover:text-[#ccff00] transition-colors">{q}</h3>
-        <ChevronDown className="h-5 w-5 text-gray-500" />
+    <div className="border border-white/10 rounded-2xl bg-white/5 overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex justify-between items-center w-full p-6 text-left hover:bg-white/5 transition-colors"
+      >
+        <h3 className="text-lg font-bold text-white">{q}</h3>
+        <ChevronDown className={`h-5 w-5 text-[#ccff00] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      <div className={`px-6 text-gray-400 leading-relaxed transition-all duration-300 ease-in-out ${isOpen ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+        {a}
       </div>
-      <p className="mt-3 text-gray-400 leading-relaxed">{a}</p>
     </div>
   );
 }

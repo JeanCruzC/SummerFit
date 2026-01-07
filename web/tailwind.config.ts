@@ -23,19 +23,29 @@ const config: Config = {
       boxShadow: {
         soft: "0 1px 2px rgba(0,0,0,0.06)"
       },
+      backgroundSize: {
+        "300%": "300%",
+      },
       keyframes: {
         "fade-up": {
-          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" }
         },
         "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" }
+        },
+        "gradient": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
         }
       },
       animation: {
         "fade-up": "fade-up 600ms ease forwards",
-        "fade-in": "fade-in 500ms ease forwards"
+        "fade-in": "fade-in 500ms ease forwards",
+        "fade-in-up": "fade-up 800ms ease-out forwards",
+        "gradient": "gradient 8s ease infinite",
+        "bounce-slow": "bounce 3s infinite",
       }
     }
   },
