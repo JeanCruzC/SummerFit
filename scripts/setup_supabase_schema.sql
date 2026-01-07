@@ -1,12 +1,7 @@
--- SummerFit Premium Schema
--- Run this in Supabase SQL Editor
-
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
--- ============================================================
--- PROFILES TABLE (linked to auth.users)
--- ============================================================
+-- PROFILES TABLE
 create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   gender text check (gender in ('M', 'F')),
