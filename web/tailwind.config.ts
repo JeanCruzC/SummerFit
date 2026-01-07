@@ -15,7 +15,31 @@ const config: Config = {
         "accent-soft": "rgb(var(--accent-soft) / <alpha-value>)",
         danger: "rgb(var(--danger) / <alpha-value>)",
         warning: "rgb(var(--warning) / <alpha-value>)",
-        info: "rgb(var(--info) / <alpha-value>)"
+        info: "rgb(var(--info) / <alpha-value>)",
+        emerald: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#00D084',
+          600: '#00b874',
+          700: '#00966',
+          800: '#065f46',
+          900: '#064e3b',
+        },
+        coral: {
+          50: '#fff5f5',
+          100: '#ffe5e5',
+          200: '#ffd1d1',
+          300: '#ffb3b3',
+          400: '#ff8a8a',
+          500: '#FF6B6B',
+          600: '#ff5252',
+          700: '#e63939',
+          800: '#cc2929',
+          900: '#991f1f',
+        }
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"]
