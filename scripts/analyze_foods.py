@@ -105,13 +105,26 @@ def translate_category(category: str) -> str:
 
 def get_supabase_client() -> "Client":
     """Create Supabase client from environment variables."""
-    url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
+    # Try to load from web/.env.local first
+    from pathlib import Path
+    import os
+    
+    env_path = Path(__file__).parent.parent / "web" / ".env.local"
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    os.environ.setdefault(key.strip(), value.strip())
+    
+    url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     
     if not url or not key:
         raise ValueError(
             "Missing Supabase credentials.\n"
-            "Set SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables."
+            "Make sure web/.env.local exists with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"
         )
     
     return create_client(url, key)

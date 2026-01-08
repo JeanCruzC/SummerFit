@@ -10,6 +10,17 @@ import { searchFoods, getFoodCategories, addMealEntry, getProfile, getRandomFood
 import { FoodItem, UserProfile } from "@/types";
 
 const CATEGORY_TRANSLATIONS: Record<string, string> = {
+    // Actual DB categories
+    "Meats": "Carnes",
+    "Vegetables": "Verduras",
+    "Fruits": "Frutas",
+    "Fish": "Pescados",
+    "Beans and Lentils": "Legumbres",
+    "Grains and Pasta": "Granos y Pasta",
+    "Baked Foods": "Panadería",
+    "Soups and Sauces": "Sopas y Salsas",
+    "American Indian": "Comida Nativa",
+    // Standard USDA categories
     "Dairy and Egg Products": "Lácteos y Huevos",
     "Spices and Herbs": "Especias y Hierbas",
     "Baby Foods": "Bebés",
@@ -27,20 +38,29 @@ const CATEGORY_TRANSLATIONS: Record<string, string> = {
     "Finfish and Shellfish Products": "Pescados y Mariscos",
     "Legumes and Legume Products": "Legumbres",
     "Lamb, Veal, and Game Products": "Cordero y Caza",
-    "Baked Products": "Horneados / Panadería",
+    "Baked Products": "Panadería",
     "Sweets": "Dulces",
     "Cereal Grains and Pasta": "Granos y Pasta",
     "Fast Foods": "Comida Rápida",
     "Meals, Entrees, and Side Dishes": "Platos Preparados",
-    "Snacks": "Snacks / Aperitivos",
-    "American Indian/Alaska Native Foods": "Comida Nativa Americana",
+    "Snacks": "Snacks",
+    "American Indian/Alaska Native Foods": "Comida Nativa",
     "Restaurant Foods": "Restaurante",
 };
 
 const translateCategory = (cat: string) => CATEGORY_TRANSLATIONS[cat] || cat;
 
 // Categories that are "basic" ingredients vs prepared dishes
+// Based on actual database category values
 const BASIC_CATEGORIES = [
+    // Actual DB categories
+    "Meats",
+    "Vegetables",
+    "Fruits",
+    "Fish",
+    "Beans and Lentils",
+    "Grains and Pasta",
+    // Standard USDA categories (for compatibility)
     "Dairy and Egg Products",
     "Fats and Oils",
     "Poultry Products",
@@ -58,17 +78,21 @@ const BASIC_CATEGORIES = [
 ];
 
 const PREPARED_CATEGORIES = [
+    // Actual DB categories
+    "Baked Foods",
+    "Soups and Sauces",
+    "Restaurant Foods",
+    "Sweets",
+    "Snacks",
+    "Baby Foods",
+    "Breakfast Cereals",
+    "American Indian",
+    // Standard USDA categories (for compatibility)
     "Fast Foods",
     "Meals, Entrees, and Side Dishes",
-    "Restaurant Foods",
-    "Soups, Sauces, and Gravies",
-    "Snacks",
-    "Sweets",
-    "Baked Foods",  // Match actual DB value
-    "Baked Products",  // Keep this too for compatibility
-    "Breakfast Cereals",
-    "Baby Foods",
+    "Baked Products",
     "Sausages and Luncheon Meats",
+    "Soups, Sauces, and Gravies",
 ];
 
 const isBasicFood = (category: string | null | undefined) => BASIC_CATEGORIES.includes(category || "");
