@@ -62,10 +62,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 py-12 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+    <div className="min-h-screen relative flex items-center justify-center p-4 py-12 bg-gradient-to-br from-purple-50 via-white to-purple-50">
       {/* Animated Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-coral-400/20 rounded-full blur-3xl animate-pulse" />
       </div>
 
@@ -73,17 +73,17 @@ export default function RegisterPage() {
         {/* Logo Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center gap-3 group">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg group-hover:shadow-emerald-500/50 transition-all group-hover:scale-105">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg group-hover:shadow-purple-500/50 transition-all group-hover:scale-105">
               <Zap className="h-7 w-7 fill-current" />
             </div>
-            <span className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <span className="text-3xl font-black bg-gradient-to-r from-purple-600 to-purple-600 bg-clip-text text-transparent">
               SummerFit
             </span>
           </Link>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl p-8 shadow-2xl">
+        <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-black mb-2 text-zinc-900">Crea tu cuenta</h1>
             <p className="text-zinc-600 font-medium">Comienza tu transformación hoy</p>
@@ -100,7 +100,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-700" htmlFor="fullName">Nombre completo</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                 <input
                   id="fullName"
                   name="fullName"
@@ -109,7 +109,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder="Juan Pérez"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition font-medium"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition font-medium"
                 />
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-700" htmlFor="email">Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                 <input
                   id="email"
                   name="email"
@@ -127,7 +127,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder="tu@email.com"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition font-medium"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition font-medium"
                 />
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-700" htmlFor="password">Contraseña</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                 <input
                   id="password"
                   name="password"
@@ -145,12 +145,12 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder="Mínimo 6 caracteres"
                   required
-                  className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition font-medium"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition font-medium"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-emerald-600 transition"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-purple-600 transition"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-700" htmlFor="confirmPassword">Confirmar contraseña</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -170,7 +170,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder="Repite tu contraseña"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition font-medium"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition font-medium"
                 />
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function RegisterPage() {
           {/* Footer */}
           <p className="text-center text-sm text-zinc-600 mt-8 font-medium">
             ¿Ya tienes una cuenta?{" "}
-            <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-bold hover:underline">
+            <Link href="/login" className="text-purple-600 hover:text-purple-700 font-bold hover:underline">
               Inicia sesión
             </Link>
           </p>

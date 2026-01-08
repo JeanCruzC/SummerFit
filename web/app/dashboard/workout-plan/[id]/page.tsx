@@ -220,7 +220,7 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
 
                         return (
                             <div key={dayNum} className="lg:col-span-3 xl:col-span-2 flex flex-col">
-                                <div className="bg-white rounded-2xl border-2 border-zinc-200 overflow-hidden flex flex-col flex-1 shadow-sm hover:border-emerald-200 transition-colors">
+                                <div className="bg-white rounded-2xl border-2 border-zinc-200 overflow-hidden flex flex-col flex-1 shadow-sm hover:border-purple-200 transition-colors">
                                     <div className="p-4 bg-zinc-50 border-b border-zinc-100 flex justify-between items-center">
                                         <h3 className="font-black text-zinc-700">Día {dayNum}</h3>
                                         <span className="text-xs font-bold text-coral-500">{Math.round(dayCalories)} kcal</span>
@@ -280,7 +280,7 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
 
                                     <button
                                         onClick={() => { setSelectedDay(dayNum); setShowPicker(true); }}
-                                        className="m-4 py-2 border-2 border-dashed border-zinc-200 rounded-xl text-zinc-400 font-bold hover:border-emerald-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 text-sm"
+                                        className="m-4 py-2 border-2 border-dashed border-zinc-200 rounded-xl text-zinc-400 font-bold hover:border-purple-400 hover:text-purple-500 hover:bg-purple-50 transition-all flex items-center justify-center gap-2 text-sm"
                                     >
                                         <Plus className="h-4 w-4" /> Agregar Ejercicio
                                     </button>
@@ -309,7 +309,7 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                                 <input
                                     type="text"
                                     placeholder="Buscar ejercicio..."
-                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 focus:border-emerald-500 outline-none"
+                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 focus:border-purple-500 outline-none"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     autoFocus
@@ -322,17 +322,17 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                                 <button
                                     key={ex.id}
                                     onClick={() => handleAddExercise(ex)}
-                                    className="w-full text-left p-4 rounded-xl hover:bg-emerald-50 border border-transparent hover:border-emerald-200 transition-all group flex items-start justify-between"
+                                    className="w-full text-left p-4 rounded-xl hover:bg-purple-50 border border-transparent hover:border-purple-200 transition-all group flex items-start justify-between"
                                 >
                                     <div>
-                                        <h4 className="font-bold text-zinc-900 group-hover:text-emerald-700">{ex.title}</h4>
+                                        <h4 className="font-bold text-zinc-900 group-hover:text-purple-700">{ex.title}</h4>
                                         <div className="flex gap-2 text-xs mt-1 text-zinc-500">
                                             <span className="bg-zinc-100 px-2 py-0.5 rounded">{ex.body_part}</span>
                                             <span className="bg-zinc-100 px-2 py-0.5 rounded">{ex.type}</span>
                                             {ex.met && <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> {ex.met}</span>}
                                         </div>
                                     </div>
-                                    <Plus className="h-5 w-5 text-zinc-300 group-hover:text-emerald-500" />
+                                    <Plus className="h-5 w-5 text-zinc-300 group-hover:text-purple-500" />
                                 </button>
                             ))}
                             {filteredPickerExercises.length === 0 && (

@@ -9,21 +9,45 @@ import { useState, useEffect, useRef } from "react";
 
 export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // PWA Install Prompt
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
   }, []);
 
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
+      setDeferredPrompt(null);
+    } else {
+      // Fallback: redirect to register if install prompt not available
+      window.location.href = '/register';
+    }
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-emerald-50/30 text-zinc-900 font-sans antialiased overflow-x-hidden">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-purple-50/30 text-zinc-900 font-sans antialiased overflow-x-hidden">
 
       {/* Navbar Float */}
       <motion.nav
-        className={`fixed top-0 z-50 w-full transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-xl shadow-lg border-b border-emerald-100/50 py-3" : "bg-transparent py-5"}`}
+        className={`fixed top-0 z-50 w-full transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-xl shadow-lg border-b border-purple-100/50 py-3" : "bg-transparent py-5"}`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
@@ -31,24 +55,24 @@ export default function Landing() {
         <div className="container mx-auto flex items-center justify-between px-6 max-w-7xl">
           <div className="flex items-center gap-2">
             <motion.div
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg"
               whileHover={{ rotate: 360, scale: 1.1 }}
               transition={{ duration: 0.6 }}
             >
               <Zap className="h-5 w-5 fill-current" />
             </motion.div>
-            <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">SummerFit</span>
+            <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-purple-600 bg-clip-text text-transparent">SummerFit</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-600">
-            <Link href="#como-funciona" className="hover:text-emerald-600 transition-colors">Cómo funciona</Link>
-            <Link href="#comparativa" className="hover:text-emerald-600 transition-colors">Comparativa</Link>
-            <Link href="#testimonios" className="hover:text-emerald-600 transition-colors">Testimonios</Link>
-            <Link href="#faq" className="hover:text-emerald-600 transition-colors">FAQ</Link>
+            <Link href="#como-funciona" className="hover:text-purple-600 transition-colors">Cómo funciona</Link>
+            <Link href="#comparativa" className="hover:text-purple-600 transition-colors">Comparativa</Link>
+            <Link href="#testimonios" className="hover:text-purple-600 transition-colors">Testimonios</Link>
+            <Link href="#faq" className="hover:text-purple-600 transition-colors">FAQ</Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden sm:block text-sm font-semibold text-zinc-700 hover:text-emerald-600 transition-colors">
+            <Link href="/login" className="hidden sm:block text-sm font-semibold text-zinc-700 hover:text-purple-600 transition-colors">
               Login
             </Link>
             <Link href="/register">
@@ -68,13 +92,13 @@ export default function Landing() {
       <section className="relative pt-36 pb-24 overflow-hidden min-h-[90vh] flex items-center">
         {/* Animated Background Gradient */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50"
+          className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-purple-50"
           style={{ y }}
         />
 
         {/* Decorative Circles */}
         <motion.div
-          className="absolute top-20 right-10 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl"
+          className="absolute top-20 right-10 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -102,13 +126,13 @@ export default function Landing() {
             >
               {/* Badge */}
               <motion.div
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 shadow-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 shadow-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <Star className="h-4 w-4 text-emerald-600 fill-emerald-600" />
-                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                <Star className="h-4 w-4 text-purple-600 fill-purple-600" />
+                <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
                   ★★★★★ 4.9/5 | +127,000 personas transformadas
                 </span>
               </motion.div>
@@ -121,7 +145,7 @@ export default function Landing() {
                 transition={{ delay: 0.3 }}
               >
                 TU TRANSFORMACIÓN<br />
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-300% animate-gradient bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-purple-600 via-purple-600 to-purple-600 bg-300% animate-gradient bg-clip-text text-transparent">
                   COMIENZA HOY
                 </span><br />
                 <span className="text-zinc-800">NO EL LUNES.</span>
@@ -135,7 +159,7 @@ export default function Landing() {
                 transition={{ delay: 0.4 }}
               >
                 La única app que se adapta a <span className="font-bold text-black">TI</span>, no tú a ella.<br />
-                <span className="text-emerald-600 font-semibold">IA personalizada</span> + <span className="text-coral-600 font-semibold">Comunidad real</span> = <span className="font-bold text-black">Resultados reales</span>.
+                <span className="text-purple-600 font-semibold">IA personalizada</span> + <span className="text-coral-600 font-semibold">Comunidad real</span> = <span className="font-bold text-black">Resultados reales</span>.
               </motion.p>
 
               <motion.p
@@ -211,7 +235,7 @@ export default function Landing() {
 
       {/* TECH STACK BANNER */}
       <motion.section
-        className="py-12 border-y border-emerald-100 bg-white/50 backdrop-blur-sm"
+        className="py-12 border-y border-purple-100 bg-white/50 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -223,7 +247,7 @@ export default function Landing() {
             {["React 18", "Next.js 15", "Framer Motion", "TailwindCSS", "Supabase AI"].map((tech, i) => (
               <motion.span
                 key={tech}
-                className="text-lg font-bold text-emerald-600/80 hover:text-emerald-600 transition-colors cursor-default"
+                className="text-lg font-bold text-purple-600/80 hover:text-purple-600 transition-colors cursor-default"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
@@ -248,7 +272,7 @@ export default function Landing() {
             viewport={{ once: true, margin: "-100px" }}
           >
             <h2 className="text-5xl md:text-6xl font-black tracking-tighter mb-6">
-              TECNOLOGÍA <span className="text-emerald-600">VS</span> VOLUNTAD
+              TECNOLOGÍA <span className="text-purple-600">VS</span> VOLUNTAD
             </h2>
             <p className="text-2xl text-zinc-600 font-medium">
               Spoiler: <span className="text-coral-600">Ambas ganan aquí</span>
@@ -279,7 +303,7 @@ export default function Landing() {
       </section>
 
       {/* COMPARISON TABLE */}
-      <section id="comparativa" className="py-32 bg-gradient-to-b from-emerald-50 to-white relative">
+      <section id="comparativa" className="py-32 bg-gradient-to-b from-purple-50 to-white relative">
         <div className="container mx-auto px-6 max-w-6xl">
           <motion.div
             className="text-center mb-16"
@@ -289,7 +313,7 @@ export default function Landing() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-4">
-              <span className="text-zinc-400">MyFitnessPal</span> VS <span className="text-zinc-400">Fitia</span> VS <span className="text-emerald-600">SummerFit</span>
+              <span className="text-zinc-400">MyFitnessPal</span> VS <span className="text-zinc-400">Fitia</span> VS <span className="text-purple-600">SummerFit</span>
             </h2>
             <p className="text-xl text-zinc-600">Tú decides quién gana</p>
           </motion.div>
@@ -308,14 +332,14 @@ export default function Landing() {
             viewport={{ once: true }}
           >
             <h2 className="text-5xl font-black tracking-tighter mb-4">
-              ES RIDÍCULAMENTE <span className="text-emerald-600">FÁCIL</span>
+              ES RIDÍCULAMENTE <span className="text-purple-600">FÁCIL</span>
             </h2>
             <p className="text-xl text-zinc-500">(Y por eso funciona)</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-12 relative">
             {/* Connecting Line */}
-            <div className="hidden md:block absolute top-20 left-[16.66%] right-[16.66%] h-1 bg-gradient-to-r from-emerald-200 via-teal-300 to-emerald-200" />
+            <div className="hidden md:block absolute top-20 left-[16.66%] right-[16.66%] h-1 bg-gradient-to-r from-purple-200 via-purple-300 to-purple-200" />
 
             <StepCard number="1" title="CUÉNTANOS TODO" desc="2 minutos de preguntas. La IA crea tu plan maestro." delay={0} />
             <StepCard number="2" title="VIVE TU DÍA NORMAL" desc="Notificaciones inteligentes en el momento perfecto." delay={0.2} />
@@ -347,7 +371,7 @@ export default function Landing() {
       <section className="py-32 relative overflow-hidden">
         <div className="absolute inset-0">
           <Image src="/hero-community.png" alt="Comunidad" fill className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-600/90 to-teal-700/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-600/90 to-teal-700/90" />
         </div>
 
         <div className="container relative z-10 mx-auto px-6 text-center text-white">
@@ -424,15 +448,14 @@ export default function Landing() {
             <span className="text-white/80">ESTÁ A UN CLICK</span>
           </motion.h2>
 
-          <Link href="/register">
-            <motion.button
-              className="h-16 sm:h-20 bg-white text-coral-600 text-xl sm:text-2xl font-black rounded-full px-8 sm:px-16 shadow-2xl hover:shadow-white/50 transition-shadow w-full sm:w-auto sm:min-w-[400px]"
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              DESCARGAR GRATIS
-            </motion.button>
-          </Link>
+          <motion.button
+            onClick={handleInstallClick}
+            className="h-16 sm:h-20 bg-white text-purple-600 text-xl sm:text-2xl font-black rounded-full px-8 sm:px-16 shadow-2xl hover:shadow-white/50 transition-shadow w-full sm:w-auto sm:min-w-[400px]"
+            whileHover={{ scale: 1.05, y: -5 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            DESCARGAR GRATIS
+          </motion.button>
 
           <p className="mt-8 text-white/80 font-semibold">iOS y Android | No se requiere tarjeta</p>
         </div>
@@ -457,18 +480,18 @@ function FeatureCard({ icon: Icon, title, desc, delay }: { icon: any, title: str
   return (
     <motion.div
       ref={ref}
-      className="group p-10 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-100 hover:border-emerald-300 transition-all duration-500 relative overflow-hidden"
+      className="group p-10 rounded-3xl bg-gradient-to-br from-purple-50 to-purple-50 border-2 border-purple-100 hover:border-purple-300 transition-all duration-500 relative overflow-hidden"
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay }}
       whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,208,132,0.2)" }}
     >
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-teal-400/0 group-hover:from-emerald-400/10 group-hover:to-teal-400/10 transition-all duration-500"
+        className="absolute inset-0 bg-gradient-to-br from-purple-400/0 to-purple-400/0 group-hover:from-purple-400/10 group-hover:to-purple-400/10 transition-all duration-500"
       />
 
       <motion.div
-        className="relative mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg text-emerald-600"
+        className="relative mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg text-purple-600"
         whileHover={{ rotate: 360, scale: 1.1 }}
         transition={{ duration: 0.6 }}
       >
@@ -515,23 +538,23 @@ function ComparisonTable() {
 
   return (
     <motion.div
-      className="bg-white rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden"
+      className="bg-white rounded-3xl shadow-2xl border border-purple-100 overflow-hidden"
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
     >
-      <div className="grid grid-cols-4 gap-4 p-8 bg-gradient-to-r from-emerald-50 to-teal-50 font-bold text-center border-b border-emerald-200">
+      <div className="grid grid-cols-4 gap-4 p-8 bg-gradient-to-r from-purple-50 to-purple-50 font-bold text-center border-b border-purple-200">
         <div className="text-zinc-700">Característica</div>
         <div className="text-zinc-500">MyFitnessPal</div>
         <div className="text-zinc-500">Fitia</div>
-        <div className="text-emerald-600">SummerFit</div>
+        <div className="text-purple-600">SummerFit</div>
       </div>
 
       {features.map((feature, i) => (
         <motion.div
           key={feature.name}
-          className="grid grid-cols-4 gap-4 p-6 border-b border-zinc-100 last:border-b-0 items-center text-center hover:bg-emerald-50/30 transition-colors"
+          className="grid grid-cols-4 gap-4 p-6 border-b border-zinc-100 last:border-b-0 items-center text-center hover:bg-purple-50/30 transition-colors"
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.1 }}
@@ -600,7 +623,7 @@ function TestimonialCarousel() {
           </div>
           <p className="text-lg text-zinc-700 mb-6 italic">"{t.quote}"</p>
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full" />
+            <div className="h-12 w-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full" />
             <div>
               <div className="font-bold text-zinc-900">{t.name}, {t.age}</div>
               <div className="text-sm text-zinc-500">{t.time} en SummerFit</div>
@@ -617,7 +640,7 @@ function FaqItem({ q, a }: { q: string, a: string }) {
 
   return (
     <motion.div
-      className="border-2 border-emerald-100 rounded-2xl overflow-hidden bg-white"
+      className="border-2 border-purple-100 rounded-2xl overflow-hidden bg-white"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
@@ -625,14 +648,14 @@ function FaqItem({ q, a }: { q: string, a: string }) {
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex justify-between items-center w-full p-6 text-left hover:bg-emerald-50/50 transition-colors"
+        className="flex justify-between items-center w-full p-6 text-left hover:bg-purple-50/50 transition-colors"
       >
         <h3 className="text-lg font-bold text-zinc-900">{q}</h3>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
         >
-          <ChevronDown className="h-6 w-6 text-emerald-600" />
+          <ChevronDown className="h-6 w-6 text-purple-600" />
         </motion.div>
       </button>
       <motion.div

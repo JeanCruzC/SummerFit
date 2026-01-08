@@ -13,16 +13,16 @@ import type { UserEquipment } from "@/types";
 
 // Common equipment types
 const EQUIPMENT_TYPES = [
-    { value: "Peso corporal", label: "Peso corporal", icon: <User className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Barra", label: "Barra", icon: <Spline className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Mancuernas", label: "Mancuernas", icon: <Dumbbell className="w-8 h-8 text-emerald-600" />, hasWeight: true },
-    { value: "Pesa Rusa", label: "Pesa Rusa (Kettlebell)", icon: <Bell className="w-8 h-8 text-emerald-600" />, hasWeight: true },
-    { value: "Bandas", label: "Bandas elásticas", icon: <Activity className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Banco", label: "Banco", icon: <Armchair className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Cinta", label: "Cinta de correr", icon: <Footprints className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Polea", label: "Poleas / Cable", icon: <Anchor className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Paralelas", label: "Barras paralelas", icon: <LayoutList className="w-8 h-8 text-emerald-600" />, hasWeight: false },
-    { value: "Maquina", label: "Máquinas (Gimnasio)", icon: <Settings className="w-8 h-8 text-emerald-600" />, hasWeight: false },
+    { value: "Peso corporal", label: "Peso corporal", icon: <User className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Barra", label: "Barra", icon: <Spline className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Mancuernas", label: "Mancuernas", icon: <Dumbbell className="w-8 h-8 text-purple-600" />, hasWeight: true },
+    { value: "Pesa Rusa", label: "Pesa Rusa (Kettlebell)", icon: <Bell className="w-8 h-8 text-purple-600" />, hasWeight: true },
+    { value: "Bandas", label: "Bandas elásticas", icon: <Activity className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Banco", label: "Banco", icon: <Armchair className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Cinta", label: "Cinta de correr", icon: <Footprints className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Polea", label: "Poleas / Cable", icon: <Anchor className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Paralelas", label: "Barras paralelas", icon: <LayoutList className="w-8 h-8 text-purple-600" />, hasWeight: false },
+    { value: "Maquina", label: "Máquinas (Gimnasio)", icon: <Settings className="w-8 h-8 text-purple-600" />, hasWeight: false },
 ];
 
 export default function EquipmentPage() {
@@ -118,13 +118,13 @@ export default function EquipmentPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                <div className="h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 p-6">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
@@ -135,7 +135,7 @@ export default function EquipmentPage() {
                 </div>
 
                 {/* Add Equipment Form */}
-                <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl p-8 shadow-2xl mb-8">
+                <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8 shadow-2xl mb-8">
                     <h2 className="text-2xl font-bold text-zinc-900 mb-6">Agregar Equipamiento</h2>
 
                     <div className="space-y-6">
@@ -152,8 +152,8 @@ export default function EquipmentPage() {
                                         onClick={() => toggleSelection(type.value)}
                                         disabled={equipment.some(e => e.equipment_type === type.value && !type.hasWeight)}
                                         className={`py-4 px-4 rounded-xl border-2 font-bold transition-all text-left disabled:opacity-40 disabled:cursor-not-allowed ${selectedTypes.includes(type.value)
-                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                                            : "border-zinc-200 text-zinc-700 hover:border-emerald-200"
+                                            ? "border-purple-500 bg-purple-50 text-purple-700"
+                                            : "border-zinc-200 text-zinc-700 hover:border-purple-200"
                                             } flex flex-col items-center justify-center`}
                                     >
                                         <div className="mb-2 flex justify-center">{type.icon}</div>
@@ -175,7 +175,7 @@ export default function EquipmentPage() {
                                         min="1"
                                         value={quantity}
                                         onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                                     />
                                 </div>
 
@@ -190,7 +190,7 @@ export default function EquipmentPage() {
                                             value={weight}
                                             onChange={(e) => setWeight(e.target.value)}
                                             placeholder="10"
-                                            className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none"
+                                            className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                                         />
                                     </div>
                                 )}
@@ -201,7 +201,7 @@ export default function EquipmentPage() {
                         <button
                             onClick={handleAdd}
                             disabled={selectedTypes.length === 0}
-                            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-black text-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             <Plus className="h-5 w-5" />
                             {selectedTypes.length > 0 ? `Agregar (${selectedTypes.length})` : "Agregar"}
@@ -210,7 +210,7 @@ export default function EquipmentPage() {
                 </div>
 
                 {/* Equipment List */}
-                <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl p-8 shadow-2xl">
+                <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8 shadow-2xl">
                     <h2 className="text-2xl font-bold text-zinc-900 mb-6">Tu Equipamiento</h2>
 
                     {!hasEquipment ? (
@@ -228,7 +228,7 @@ export default function EquipmentPage() {
                                 return (
                                     <div
                                         key={item.id}
-                                        className="flex items-center justify-between p-4 rounded-xl border-2 border-zinc-200 hover:border-emerald-200 transition-all"
+                                        className="flex items-center justify-between p-4 rounded-xl border-2 border-zinc-200 hover:border-purple-200 transition-all"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className="text-3xl">{equipType?.icon || "🏋️"}</div>

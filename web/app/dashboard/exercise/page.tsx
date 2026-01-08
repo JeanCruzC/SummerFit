@@ -266,7 +266,7 @@ export default function ExercisePage() {
                                         <div className="text-sm text-gray-500 flex gap-2">
                                             <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs">{ex.body_part}</span>
                                             <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs">{ex.type}</span>
-                                            {ex.met && <span className="text-emerald-600 dark:text-emerald-400 text-xs font-mono">MET: {ex.met}</span>}
+                                            {ex.met && <span className="text-purple-600 dark:text-purple-400 text-xs font-mono">MET: {ex.met}</span>}
                                         </div>
                                     </div>
                                     <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-purple-500" />

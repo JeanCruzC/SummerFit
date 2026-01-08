@@ -200,7 +200,7 @@ export default function DashboardPage() {
                                 <div className="text-sm text-gray-500">Objetivo diario</div>
                                 <div className="text-4xl font-bold">{projection.daily_calories} <span className="text-lg font-normal text-gray-500">kcal</span></div>
                                 {(projection as any).exercise_boost > 0 && (
-                                    <div className="text-xs font-semibold text-emerald-600 mt-1 flex items-center gap-1">
+                                    <div className="text-xs font-semibold text-purple-600 mt-1 flex items-center gap-1">
                                         <Zap className="h-3 w-3" />
                                         +{(projection as any).exercise_boost} kcal quemadas (extra)
                                     </div>

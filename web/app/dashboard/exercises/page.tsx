@@ -93,13 +93,13 @@ export default function ExercisesPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                <div className="h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 p-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
@@ -110,17 +110,17 @@ export default function ExercisesPage() {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl p-6 shadow-2xl mb-8">
+                <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-6 shadow-2xl mb-8">
                     {/* Search Bar */}
                     <div className="mb-6">
                         <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Buscar ejercicios..."
-                                className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none"
+                                className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                             />
                         </div>
                     </div>
@@ -134,7 +134,7 @@ export default function ExercisesPage() {
                             <select
                                 value={filterBodyPart}
                                 onChange={(e) => setFilterBodyPart(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                             >
                                 <option value="">Todos</option>
                                 {bodyParts.map(bp => (
@@ -150,7 +150,7 @@ export default function ExercisesPage() {
                             <select
                                 value={filterLevel}
                                 onChange={(e) => setFilterLevel(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                             >
                                 <option value="">Todos</option>
                                 {levels.map(level => (
@@ -166,7 +166,7 @@ export default function ExercisesPage() {
                             <select
                                 value={filterType}
                                 onChange={(e) => setFilterType(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                             >
                                 <option value="">Todos</option>
                                 {types.map(type => (
@@ -179,7 +179,7 @@ export default function ExercisesPage() {
 
                 {/* Exercise Grid */}
                 {filteredExercises.length === 0 ? (
-                    <div className="text-center py-12 bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl p-8">
+                    <div className="text-center py-12 bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8">
                         <Dumbbell className="h-16 w-16 text-zinc-300 mx-auto mb-4" />
                         <p className="text-zinc-500 font-medium">
                             No se encontraron ejercicios con estos filtros.
@@ -213,7 +213,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
     const [showInstructions, setShowInstructions] = useState(false);
 
     return (
-        <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all">
+        <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -230,7 +230,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
                         )}
 
                         {exercise.type && (
-                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border-2 border-emerald-200">
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border-2 border-purple-200">
                                 {typeIcons[exercise.type as keyof typeof typeIcons] || ''} {exercise.type}
                             </span>
                         )}
@@ -263,8 +263,8 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
 
                 {exercise.met && (
                     <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-emerald-500" />
-                        <span className="text-sm font-bold text-emerald-700">
+                        <Zap className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm font-bold text-purple-700">
                             {exercise.met} MET
                         </span>
                         <span className="text-xs text-zinc-500">
@@ -295,13 +295,13 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
             <div className="flex gap-2 mt-4">
                 <button
                     onClick={() => setShowInstructions(!showInstructions)}
-                    className="flex-1 py-3 rounded-xl border-2 border-emerald-100 text-emerald-700 font-bold hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-3 rounded-xl border-2 border-purple-100 text-purple-700 font-bold hover:bg-purple-50 transition-all flex items-center justify-center gap-2"
                 >
                     <BookOpen className="h-4 w-4" />
                     {showInstructions ? "Ocultar" : "Instrucciones"}
                 </button>
                 <button
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                     <Heart className="h-4 w-4" />
                     Agregar
@@ -333,7 +333,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
                     {exercise.instructions && exercise.instructions.length > 0 ? (
                         <ol className="space-y-2 list-decimal list-inside text-sm text-zinc-600">
                             {exercise.instructions.map((step, idx) => (
-                                <li key={idx} className="pl-1 marker:font-bold marker:text-emerald-500">
+                                <li key={idx} className="pl-1 marker:font-bold marker:text-purple-500">
                                     {step}
                                 </li>
                             ))}

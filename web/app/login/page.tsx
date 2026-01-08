@@ -39,10 +39,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+    <div className="min-h-screen relative flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 via-white to-purple-50">
       {/* Animated Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -left-10 top-10 h-80 w-80 bg-emerald-400/20 blur-3xl rounded-full animate-pulse" />
+        <div className="absolute -left-10 top-10 h-80 w-80 bg-purple-400/20 blur-3xl rounded-full animate-pulse" />
         <div className="absolute -right-20 bottom-10 h-96 w-96 bg-coral-400/20 blur-3xl rounded-full animate-pulse" />
       </div>
 
@@ -50,10 +50,10 @@ export default function LoginPage() {
         {/* Logo Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center gap-3 group">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg group-hover:shadow-emerald-500/50 transition-all group-hover:scale-105">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg group-hover:shadow-purple-500/50 transition-all group-hover:scale-105">
               <Zap className="h-7 w-7 fill-current" />
             </div>
-            <span className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <span className="text-3xl font-black bg-gradient-to-r from-purple-600 to-purple-600 bg-clip-text text-transparent">
               SummerFit
             </span>
           </Link>
@@ -61,7 +61,7 @@ export default function LoginPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl p-8 shadow-2xl">
+        <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-black text-zinc-900 mb-2">Bienvenido de vuelta</h1>
             <p className="text-sm text-zinc-600 font-medium">Inicia sesión para continuar</p>
@@ -78,7 +78,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-700" htmlFor="email">Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                 <input
                   id="email"
                   type="email"
@@ -86,7 +86,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition font-medium text-zinc-900 placeholder:text-zinc-400"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition font-medium text-zinc-900 placeholder:text-zinc-400"
                 />
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-700" htmlFor="password">Contraseña</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-500" />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -103,12 +103,12 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition font-medium text-zinc-900 placeholder:text-zinc-400"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-white border-2 border-zinc-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition font-medium text-zinc-900 placeholder:text-zinc-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-emerald-600 transition"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-purple-600 transition"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -135,7 +135,7 @@ export default function LoginPage() {
           {/* Footer */}
           <p className="text-center text-sm text-zinc-600 mt-8 font-medium">
             ¿No tienes una cuenta?{" "}
-            <Link href="/register" className="text-emerald-600 hover:text-emerald-700 font-bold hover:underline">
+            <Link href="/register" className="text-purple-600 hover:text-purple-700 font-bold hover:underline">
               Regístrate gratis
             </Link>
           </p>

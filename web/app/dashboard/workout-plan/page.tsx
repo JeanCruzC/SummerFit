@@ -106,13 +106,13 @@ export default function WorkoutPlansPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                <div className="h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 p-6">
             <div className="max-w-6xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <div>
@@ -123,7 +123,7 @@ export default function WorkoutPlansPage() {
                     </div>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:shadow-lg transition-all flex items-center gap-2"
+                        className="py-3 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold hover:shadow-lg transition-all flex items-center gap-2"
                     >
                         <Plus className="h-5 w-5" />
                         Nuevo Plan
@@ -131,13 +131,13 @@ export default function WorkoutPlansPage() {
                 </div>
 
                 {plans.length === 0 ? (
-                    <div className="text-center py-16 bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-3xl shadow-lg">
-                        <Calendar className="h-20 w-20 text-emerald-200 mx-auto mb-4" />
+                    <div className="text-center py-16 bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl shadow-lg">
+                        <Calendar className="h-20 w-20 text-purple-200 mx-auto mb-4" />
                         <h3 className="text-2xl font-bold text-zinc-800 mb-2">No tienes planes creados</h3>
                         <p className="text-zinc-500 mb-6">Crea tu primer plan para comenzar a organizar tus rutinas.</p>
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="py-3 px-8 rounded-full border-2 border-emerald-500 text-emerald-600 font-bold hover:bg-emerald-50 transition-all"
+                            className="py-3 px-8 rounded-full border-2 border-purple-500 text-purple-600 font-bold hover:bg-purple-50 transition-all"
                         >
                             Crear Plan
                         </button>
@@ -147,11 +147,11 @@ export default function WorkoutPlansPage() {
                         {plans.map((plan) => (
                             <div
                                 key={plan.id}
-                                className={`group relative bg-white/95 backdrop-blur-xl border-2 rounded-3xl p-6 shadow-xl transition-all hover:scale-[1.02] ${plan.is_active ? "border-emerald-500 ring-4 ring-emerald-50" : "border-emerald-100 hover:border-emerald-300"
+                                className={`group relative bg-white/95 backdrop-blur-xl border-2 rounded-3xl p-6 shadow-xl transition-all hover:scale-[1.02] ${plan.is_active ? "border-purple-500 ring-4 ring-purple-50" : "border-purple-100 hover:border-purple-300"
                                     }`}
                             >
                                 {plan.is_active && (
-                                    <div className="absolute top-4 right-4 px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">
+                                    <div className="absolute top-4 right-4 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
                                         ACTIVO
                                     </div>
                                 )}
@@ -160,7 +160,7 @@ export default function WorkoutPlansPage() {
 
                                 <div className="space-y-3 mb-6">
                                     <div className="flex items-center gap-2 text-zinc-600">
-                                        <Calendar className="h-5 w-5 text-emerald-500" />
+                                        <Calendar className="h-5 w-5 text-purple-500" />
                                         <span className="font-medium">{plan.days_per_week} días / semana</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-zinc-600">
@@ -185,7 +185,7 @@ export default function WorkoutPlansPage() {
                                     {!plan.is_active && (
                                         <button
                                             onClick={() => handleActivate(plan)}
-                                            className="px-3 py-2 rounded-lg border-2 border-emerald-200 text-emerald-600 font-bold hover:bg-emerald-50 transition-all text-sm"
+                                            className="px-3 py-2 rounded-lg border-2 border-purple-200 text-purple-600 font-bold hover:bg-purple-50 transition-all text-sm"
                                             title="Activar este plan"
                                         >
                                             Activar
@@ -218,7 +218,7 @@ export default function WorkoutPlansPage() {
                                         value={newPlanName}
                                         onChange={(e) => setNewPlanName(e.target.value)}
                                         placeholder="Ej: Rutina de Volumen"
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 outline-none"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 outline-none"
                                         autoFocus
                                     />
                                 </div>
@@ -228,7 +228,7 @@ export default function WorkoutPlansPage() {
                                     <select
                                         value={newPlanDays}
                                         onChange={(e) => setNewPlanDays(Number(e.target.value))}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-emerald-500 outline-none"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 outline-none"
                                     >
                                         {[1, 2, 3, 4, 5, 6, 7].map(d => (
                                             <option key={d} value={d}>{d} días</option>
@@ -246,7 +246,7 @@ export default function WorkoutPlansPage() {
                                     <button
                                         onClick={handleCreate}
                                         disabled={!newPlanName}
-                                        className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 disabled:opacity-50"
+                                        className="flex-1 py-3 rounded-xl bg-purple-500 text-white font-bold hover:bg-purple-600 disabled:opacity-50"
                                     >
                                         Crear
                                     </button>
