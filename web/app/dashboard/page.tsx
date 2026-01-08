@@ -6,6 +6,7 @@ import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap } from
 import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, StatCard, ProgressBar, Segmented, Chip, Alert, RingProgress, Button } from "@/components/ui";
+import { getUserLocalDate } from "@/lib/date";
 import { createClient } from "@/lib/supabase/client";
 import { getProfile, getWeightHistory, getMealEntries, getDailyLogsRange } from "@/lib/supabase/database";
 import { getActiveWorkoutPlan } from "@/lib/supabase/exercises";
@@ -40,11 +41,11 @@ export default function DashboardPage() {
             const [profileData, weights, meals, logs, plan] = await Promise.all([
                 getProfile(session.user.id),
                 getWeightHistory(session.user.id, 14),
-                getMealEntries(session.user.id, new Date().toISOString().split("T")[0]),
+                getMealEntries(session.user.id, getUserLocalDate()),
                 getDailyLogsRange(
                     session.user.id,
-                    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                    new Date().toISOString().split("T")[0]
+                    getUserLocalDate(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)), // Last 14 days
+                    getUserLocalDate()
                 ),
                 getActiveWorkoutPlan(session.user.id),
             ]);
@@ -92,6 +93,7 @@ export default function DashboardPage() {
             profile.weight_kg,
             profile.target_weight_kg,
             metrics.tdee,
+            metrics.bmr,
             profile.goal,
             mode,
             activePlan?.estimated_calories_weekly || 0

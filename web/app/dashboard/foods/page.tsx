@@ -9,6 +9,36 @@ import { createClient } from "@/lib/supabase/client";
 import { searchFoods, getFoodCategories, addMealEntry, getProfile } from "@/lib/supabase/database";
 import { FoodItem, UserProfile } from "@/types";
 
+const CATEGORY_TRANSLATIONS: Record<string, string> = {
+    "Dairy and Egg Products": "Lácteos y Huevos",
+    "Spices and Herbs": "Especias y Hierbas",
+    "Baby Foods": "Bebés",
+    "Fats and Oils": "Grasas y Aceites",
+    "Poultry Products": "Aves y Pollo",
+    "Soups, Sauces, and Gravies": "Sopas y Salsas",
+    "Sausages and Luncheon Meats": "Embutidos",
+    "Breakfast Cereals": "Cereales",
+    "Fruits and Fruit Juices": "Frutas",
+    "Pork Products": "Cerdo",
+    "Vegetables and Vegetable Products": "Verduras",
+    "Nut and Seed Products": "Nueces y Semillas",
+    "Beef Products": "Ternera",
+    "Beverages": "Bebidas",
+    "Finfish and Shellfish Products": "Pescados y Mariscos",
+    "Legumes and Legume Products": "Legumbres",
+    "Lamb, Veal, and Game Products": "Cordero y Caza",
+    "Baked Products": "Horneados / Panadería",
+    "Sweets": "Dulces",
+    "Cereal Grains and Pasta": "Granos y Pasta",
+    "Fast Foods": "Comida Rápida",
+    "Meals, Entrees, and Side Dishes": "Platos Preparados",
+    "Snacks": "Snacks / Aperitivos",
+    "American Indian/Alaska Native Foods": "Comida Nativa Americana",
+    "Restaurant Foods": "Restaurante",
+};
+
+const translateCategory = (cat: string) => CATEGORY_TRANSLATIONS[cat] || cat;
+
 export default function FoodsPage() {
     const router = useRouter();
     const [userId, setUserId] = useState<string>("");
@@ -45,6 +75,16 @@ export default function FoodsPage() {
         if (!query.trim()) return;
         setLoading(true);
         const results = await searchFoods(query, 50);
+
+        // Sort by length to prioritize basics (e.g. "Arroz" < "Snacks de Arroz...")
+        // And push "Restaurant" or "Snacks" to the bottom if needed?
+        // Length sort is usually sufficient for "Basics first"
+        results.sort((a, b) => {
+            // Priority check: Put "Raw" or simple categories first if possible?
+            // For now, Length is the best heuristic.
+            return a.name.length - b.name.length;
+        });
+
         setFoods(results);
         setLoading(false);
     };
@@ -127,7 +167,7 @@ export default function FoodsPage() {
                             onClick={() => setSelectedCategory(cat)}
                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${selectedCategory === cat ? "bg-purple-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200"}`}
                         >
-                            {cat}
+                            {translateCategory(cat)}
                         </button>
                     ))}
                 </div>
@@ -151,7 +191,7 @@ export default function FoodsPage() {
                                         <div className="flex justify-between items-start">
                                             <div>
                                                 <div className="font-medium text-gray-900 dark:text-white">{food.name}</div>
-                                                <div className="text-xs text-gray-500">{food.category}</div>
+                                                <div className="text-xs text-gray-500">{translateCategory(food.category || "")}</div>
                                             </div>
                                             <div className="text-right text-sm">
                                                 <div className="font-semibold text-purple-600">{n.kcal} kcal</div>
@@ -182,7 +222,7 @@ export default function FoodsPage() {
                         </button>
 
                         <h3 className="text-xl font-semibold pr-8">{selectedFood.name}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{selectedFood.category}</p>
+                        <p className="text-sm text-gray-500 mt-1">{translateCategory(selectedFood.category || "")}</p>
 
                         <div className="mt-4">
                             <Input

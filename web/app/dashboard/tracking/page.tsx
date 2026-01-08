@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import { motion } from "framer-motion";
+import { getUserLocalDate, formatDateDisplay } from "@/lib/date";
 import { Card, Button, ProgressBar, Alert } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { getProfile, getMealEntries, deleteMealEntry, upsertDailyLog } from "@/lib/supabase/database";
@@ -14,7 +15,7 @@ export default function TrackingPage() {
     const router = useRouter();
     const [userId, setUserId] = useState<string>("");
     const [profile, setProfile] = useState<UserProfile | null>(null);
-    const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+    const [date, setDate] = useState(getUserLocalDate());
     const [meals, setMeals] = useState<MealEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState<number | null>(null);

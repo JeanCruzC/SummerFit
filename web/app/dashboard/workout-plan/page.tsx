@@ -96,6 +96,7 @@ export default function WorkoutPlansPage() {
                     await updateWorkoutPlan(p.id!, { is_active: false });
                 }
             }
+            router.refresh(); // Sync State Fix
         } catch (error) {
             console.error("Error activating plan:", error);
             loadPlans(); // Revert on error

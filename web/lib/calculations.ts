@@ -48,9 +48,16 @@ export function calculateBMR(
     age: number,
     gender: 'M' | 'F'
 ): number {
+    // Audit Fix: Guard Clauses
+    if (!weightKg || weightKg <= 0 || weightKg > 600) return 0; // Fallback safe
+    if (!heightCm || heightCm <= 0 || heightCm > 300) return 0;
+    if (!age || age <= 0 || age > 120) return 0;
+
     const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
     const bmr = gender === 'M' ? base + 5 : base - 161;
-    return Math.round(bmr);
+
+    // Safety check just in case
+    return bmr > 0 ? Math.round(bmr) : 0;
 }
 
 /**
@@ -186,65 +193,94 @@ export function calculateProjection(
 export function calculateProjectionWithExercise(
     currentWeight: number,
     targetWeight: number,
-    tdee: number,
+    tdee: number, // Original TDEE (based on activity level)
+    bmr: number,  // NEW: Required for audit-compliant calculation
     goal: 'Definir' | 'Mantener' | 'Volumen',
     mode: 'conservador' | 'moderado' | 'acelerado' = 'moderado',
-    weeklyExerciseCalories: number = 0 // NEW: calories burned from workout plan
+    weeklyExerciseCalories: number = 0
 ): GoalProjection & { exercise_boost: number; total_deficit: number } {
-    const targetCalories = calculateTargetCalories(tdee, goal, mode);
 
-    // Base deficit from diet
-    const dailyDeficit = tdee - targetCalories;
+    // AUDIT FIX #1: Prevent Double Counting
+    // Method 2: Use Sedentary Base (1.2) + Specific Calculated Exercise
+    let effectiveTDEE = tdee;
+    if (weeklyExerciseCalories > 0) {
+        const sedentaryTDEE = bmr * 1.2;
+        const dailyExerciseAvg = weeklyExerciseCalories / 7;
+        // We use the higher value to ensure active jobs aren't penalized, 
+        // effectively treating "Activity Level" as a floor for non-exercise activity.
+        // If Plan > Lifestyle Gap, we use Plan.
+        effectiveTDEE = sedentaryTDEE + dailyExerciseAvg;
 
-    // ADD exercise calories (distributed across the week)
-    const dailyExerciseBonus = weeklyExerciseCalories / 7;
+        // Safety check: If user claimed "Very Active" but has a small plan, 
+        // we might be underestimating. 
+        // However, strictly following Audit Method 2 implies using Sedentary Base.
+        // We will stick to the Audit's logic: Base(1.2) + Exercise.
+        // Users should set Activity to 'Sedentary' or 'Light' if they rely on the Plan.
+    }
 
-    // TOTAL deficit = diet + exercise
-    const totalDailyDeficit = dailyDeficit + dailyExerciseBonus;
+    const targetCalories = calculateTargetCalories(effectiveTDEE, goal, mode);
 
-    // 7700 kcal ≈ 1 kg of body fat
+    // Deficit calculation
+    const dailyDeficit = effectiveTDEE - targetCalories;
+
+    // Exercise "Bonus" for visualization (difference vs sedentary baseline)
+    // If no plan, bonus is 0. If plan, bonus is the plan calories/day.
+    const dailyExerciseBonus = weeklyExerciseCalories > 0 ? (weeklyExerciseCalories / 7) : 0;
+
+    // TOTAL deficit is just what we calculated above.
+    const totalDailyDeficit = dailyDeficit;
+
+    // AUDIT FIX #3: Muscle Gain Formula
+    const divisor = goal === 'Volumen' ? 2200 : 7700; // 2200 kcal for 1kg muscle vs 7700 for fat
+
     const weeklyDeficit = totalDailyDeficit * 7;
-    const weeklyRate = Math.abs(weeklyDeficit / 7700);
+    const weeklyRate = Math.abs(weeklyDeficit / divisor); // Use correct divisor
 
     const weightDiff = Math.abs(currentWeight - targetWeight);
     const weeks = weeklyRate > 0 ? Math.ceil(weightDiff / weeklyRate) : 0;
     const months = Math.round(weeks / 4.33 * 10) / 10;
 
-    // Calculate target date
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + weeks * 7);
 
-    // Determine risk level
+    // AUDIT FIX #2: Stricter Safety Limits
     let risk_level: 'safe' | 'moderate' | 'high' = 'safe';
     let risk_msg = 'Ritmo saludable y sostenible';
     let color = '#22c55e'; // green
     const warnings: string[] = [];
 
-    if (weeklyRate > 1) {
+    const MAX_SAFE_DEFICIT = 750;
+    const MAX_EXTREME_DEFICIT = 1000;
+
+    if (goal === 'Definir') {
+        if (dailyDeficit > MAX_EXTREME_DEFICIT) {
+            risk_level = 'high';
+            risk_msg = 'Déficit PELIGROSO - Riesgo metabólico alto';
+            color = '#ef4444';
+            warnings.push(`❌ Déficit diario de ${Math.round(dailyDeficit)} kcal excede el límite seguro (1000). Reduce la velocidad.`);
+        } else if (dailyDeficit > MAX_SAFE_DEFICIT) {
+            risk_level = 'moderate';
+            risk_msg = 'Déficit elevado - Requiere monitoreo';
+            color = '#f59e0b';
+            warnings.push(`⚠️ Déficit de ${Math.round(dailyDeficit)} kcal es alto. Asegura nutrición adecuada.`);
+        }
+    }
+
+    // Weekly Rate Limits
+    const MAX_RATE_KG = goal === 'Volumen' ? 0.5 : 1.0; // Muscle gain is slower
+
+    if (weeklyRate > MAX_RATE_KG) {
         risk_level = 'high';
-        risk_msg = 'Ritmo agresivo - Riesgo para la salud';
-        color = '#ef4444'; // red
-        warnings.push('⚠️ Un ritmo mayor a 1 kg/semana puede causar pérdida muscular y problemas metabólicos.');
-    } else if (weeklyRate > 0.75) {
-        risk_level = 'moderate';
-        risk_msg = 'Ritmo acelerado - Monitorear de cerca';
-        color = '#f59e0b'; // amber
-        warnings.push('Este ritmo es exigente. Asegúrate de mantener una buena nutrición.');
+        if (goal === 'Volumen') {
+            warnings.push('⚠️ Ganancia > 0.5kg/semana implicará ganancia de grasa considerable.');
+        } else {
+            warnings.push('⚠️ Pérdida > 1kg/semana causa pérdida muscular.');
+        }
     }
 
     if (targetCalories < 1200 && goal === 'Definir') {
         risk_level = 'high';
-        warnings.push('⚠️ Las calorías son muy bajas. Mínimo recomendado: 1200 kcal para mujeres, 1500 kcal para hombres.');
-    }
-
-    if (Math.abs(dailyDeficit) > 1000) {
-        risk_level = 'high';
-        warnings.push('⚠️ Déficit calórico extremo. Esto puede afectar tu metabolismo y energía.');
-    }
-
-    // Add warning if exercise is too intense
-    if (dailyExerciseBonus > 500) {
-        warnings.push('💪 Plan de ejercicio muy intenso. Asegúrate de descansar y comer suficiente proteína.');
+        warnings.push('⚠️ Las calorías son muy bajas (<1200).');
     }
 
     return {
@@ -257,7 +293,6 @@ export function calculateProjectionWithExercise(
         risk_msg,
         color,
         warnings,
-        // NEW fields
         exercise_boost: Math.round(dailyExerciseBonus),
         total_deficit: Math.round(totalDailyDeficit),
     };

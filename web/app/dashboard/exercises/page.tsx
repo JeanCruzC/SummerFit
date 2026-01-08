@@ -138,7 +138,7 @@ export default function ExercisesPage() {
                             >
                                 <option value="">Todos</option>
                                 {bodyParts.map(bp => (
-                                    <option key={bp} val ue={bp}>{bp}</option>
+                                    <option key={bp} value={bp}>{bp}</option>
                                 ))}
                             </select>
                         </div>
