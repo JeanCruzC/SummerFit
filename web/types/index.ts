@@ -162,6 +162,10 @@ export interface Exercise {
     ranking_score?: number;
     rating?: number;
     rating_desc?: string;
+    // Media & Instructions
+    video_url?: string;
+    gif_url?: string;
+    instructions?: string[];
     created_at?: string;
 }
 

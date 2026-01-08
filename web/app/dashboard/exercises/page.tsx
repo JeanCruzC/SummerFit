@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Filter, Star, Dumbbell, Zap, Heart } from "lucide-react";
+import { Search, Filter, Star, Dumbbell, Zap, Heart, PlayCircle, BookOpen, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getUserEquipment, getExercisesByEquipment, searchExercises } from "@/lib/supabase/exercises";
 import type { Exercise, UserEquipment } from "@/types";
@@ -210,6 +210,8 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
         'Flexibilidad': '🧘',
     };
 
+    const [showInstructions, setShowInstructions] = useState(false);
+
     return (
         <div className="bg-white/95 backdrop-blur-xl border-2 border-emerald-100 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all">
             {/* Header */}
@@ -289,13 +291,60 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
                 </div>
             )}
 
-            {/* Action Button */}
-            <button
-                className="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            >
-                <Heart className="h-4 w-4" />
-                Agregar a mi plan
-            </button>
+            {/* Action Buttons */}
+            <div className="flex gap-2 mt-4">
+                <button
+                    onClick={() => setShowInstructions(!showInstructions)}
+                    className="flex-1 py-3 rounded-xl border-2 border-emerald-100 text-emerald-700 font-bold hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                >
+                    <BookOpen className="h-4 w-4" />
+                    {showInstructions ? "Ocultar" : "Instrucciones"}
+                </button>
+                <button
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                    <Heart className="h-4 w-4" />
+                    Agregar
+                </button>
+            </div>
+
+            {/* Instructions Panel */}
+            {showInstructions && (
+                <div className="mt-4 pt-4 border-t-2 border-zinc-100 animate-in fade-in slide-in-from-top-4">
+                    {exercise.video_url && (
+                        <a
+                            href={exercise.video_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-full mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-center font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                        >
+                            <PlayCircle className="h-5 w-5" />
+                            Ver Video Tutorial
+                        </a>
+                    )}
+
+                    {exercise.gif_url && (
+                        <div className="mb-4 rounded-xl overflow-hidden border-2 border-zinc-100">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={exercise.gif_url} alt={exercise.title} className="w-full object-cover" />
+                        </div>
+                    )}
+
+                    {exercise.instructions && exercise.instructions.length > 0 ? (
+                        <ol className="space-y-2 list-decimal list-inside text-sm text-zinc-600">
+                            {exercise.instructions.map((step, idx) => (
+                                <li key={idx} className="pl-1 marker:font-bold marker:text-emerald-500">
+                                    {step}
+                                </li>
+                            ))}
+                        </ol>
+                    ) : (
+                        <div className="text-center text-zinc-400 text-sm py-2 italic bg-zinc-50 rounded-lg">
+                            No hay instrucciones detalladas disponibles.
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

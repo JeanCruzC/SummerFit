@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS public.exercises (
   ranking_score NUMERIC,
   rating NUMERIC,
   rating_desc TEXT,
+  -- Media and Instructions
+  video_url TEXT,
+  gif_url TEXT,
+  instructions TEXT[], -- Array of step-by-step instructions
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

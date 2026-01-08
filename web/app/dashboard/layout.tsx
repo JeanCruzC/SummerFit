@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
     Bell, Calendar, ChevronDown, Dumbbell, Flame, Home, LogOut, Menu, Moon,
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const router = useRouter();
     const [theme, setTheme] = useState<"light" | "dark">("light");
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -106,17 +107,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </button>
                             </div>
                             <nav className="space-y-1">
-                                {NAV_ITEMS.map(item => (
-                                    <Link
-                                        key={item.key}
-                                        href={item.href}
-                                        onClick={() => setSidebarOpen(false)}
-                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                                    >
-                                        <item.icon className="h-5 w-5" />
-                                        <span className="text-sm font-medium">{item.label}</span>
-                                    </Link>
-                                ))}
+                                {NAV_ITEMS.map(item => {
+                                    const isActive = item.href === "/dashboard"
+                                        ? pathname === "/dashboard"
+                                        : pathname?.startsWith(item.href);
+
+                                    return (
+                                        <Link
+                                            key={item.key}
+                                            href={item.href}
+                                            onClick={() => setSidebarOpen(false)}
+                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${isActive
+                                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 font-bold"
+                                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                }`}
+                                        >
+                                            <item.icon className={`h-5 w-5 ${isActive ? "text-purple-600 dark:text-purple-400" : ""}`} />
+                                            <span className="text-sm">{item.label}</span>
+                                        </Link>
+                                    );
+                                })}
                             </nav>
                             <div className="absolute bottom-4 left-4 right-4">
                                 <button
@@ -146,16 +156,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </div>
 
                             <nav className="space-y-1">
-                                {NAV_ITEMS.map(item => (
-                                    <Link
-                                        key={item.key}
-                                        href={item.href}
-                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"
-                                    >
-                                        <item.icon className="h-5 w-5" />
-                                        <span className="text-sm font-medium">{item.label}</span>
-                                    </Link>
-                                ))}
+                                {NAV_ITEMS.map(item => {
+                                    const isActive = item.href === "/dashboard"
+                                        ? pathname === "/dashboard"
+                                        : pathname?.startsWith(item.href);
+
+                                    return (
+                                        <Link
+                                            key={item.key}
+                                            href={item.href}
+                                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"
+                                        >
+                                            <item.icon className="h-5 w-5" />
+                                            <span className="text-sm font-medium">{item.label}</span>
+                                        </Link>
+                                    ))}
                             </nav>
                         </div>
 

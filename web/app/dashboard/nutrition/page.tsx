@@ -6,7 +6,7 @@ import { Calculator, Info } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, Select, Alert, ProgressBar } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
-import { getProfile } from "@/lib/supabase/database";
+import { getProfile, upsertProfile } from "@/lib/supabase/database";
 import { calculateHealthMetrics, calculateMacros, calculateProjection, calculateIdealWeightRange, calculateWaterIntake } from "@/lib/calculations";
 import { DIET_MACROS, getMacroDistribution } from "@/lib/diets";
 import { UserProfile, DietType } from "@/types";
@@ -25,10 +25,22 @@ export default function NutritionPage() {
 
             const prof = await getProfile(session.user.id);
             setProfile(prof);
+            if (prof?.goal_speed) {
+                setMode(prof.goal_speed);
+            }
             setLoading(false);
         };
         load();
     }, [router]);
+
+    const handleModeChange = async (newMode: "conservador" | "moderado" | "acelerado") => {
+        setMode(newMode);
+        if (profile) {
+            const updatedProfile = { ...profile, goal_speed: newMode };
+            setProfile(updatedProfile);
+            await upsertProfile({ user_id: profile.user_id, goal_speed: newMode });
+        }
+    };
 
     const metrics = useMemo(() => profile ? calculateHealthMetrics(profile, mode) : null, [profile, mode]);
     const projection = useMemo(() => profile && metrics ? calculateProjection(profile.weight_kg, profile.target_weight_kg, metrics.tdee, profile.goal, mode) : null, [profile, metrics, mode]);
@@ -93,7 +105,7 @@ export default function NutritionPage() {
                         {(["conservador", "moderado", "acelerado"] as const).map(m => (
                             <button
                                 key={m}
-                                onClick={() => setMode(m)}
+                                onClick={() => handleModeChange(m)}
                                 className={`px-4 py-2 rounded-xl text-sm font-medium transition ${mode === m ? "bg-purple-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600"}`}
                             >
                                 {m.charAt(0).toUpperCase() + m.slice(1)}

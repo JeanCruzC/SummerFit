@@ -10,15 +10,15 @@ import type { UserEquipment } from "@/types";
 // Common equipment types
 const EQUIPMENT_TYPES = [
     { value: "Peso corporal", label: "Peso corporal", icon: "💪", hasWeight: false },
-    { value: "Barra", label: "Barra", icon: "🏋️", hasWeight: false },
+    { value: "Barra", label: "Barra", icon: "🏋️‍♂️", hasWeight: false },
     { value: "Mancuernas", label: "Mancuernas", icon: "🏋️‍♀️", hasWeight: true },
+    { value: "Pesa Rusa", label: "Pesa Rusa (Kettlebell)", icon: "🔔", hasWeight: true },
     { value: "Bandas", label: "Bandas elásticas", icon: "🎗️", hasWeight: false },
     { value: "Banco", label: "Banco", icon: "🪑", hasWeight: false },
-    { value: "Kettlebell", label: "Kettlebell", icon: "⚫", hasWeight: true },
-    { value: "Máquina", label: "Máquinas", icon: "🎰", hasWeight: false },
-    { value: "Cable", label: "Poleas/Cables", icon: "🔗", hasWeight: false },
+    { value: "Cinta", label: "Cinta de correr", icon: "🏃‍♂️", hasWeight: false },
+    { value: "Polea", label: "Poleas / Cable", icon: "⛓️", hasWeight: false },
     { value: "Paralelas", label: "Barras paralelas", icon: "🤸", hasWeight: false },
-    { value: "Cajón", label: "Cajón pliométrico", icon: "📦", hasWeight: false },
+    { value: "Maquina", label: "Máquinas (Gimnasio)", icon: "⚙️", hasWeight: false },
 ];
 
 export default function EquipmentPage() {
@@ -26,7 +26,7 @@ export default function EquipmentPage() {
     const [userId, setUserId] = useState<string | null>(null);
     const [equipment, setEquipment] = useState<UserEquipment[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedType, setSelectedType] = useState("");
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [quantity, setQuantity] = useState(1);
     const [weight, setWeight] = useState("");
 
@@ -55,23 +55,44 @@ export default function EquipmentPage() {
         }
     };
 
+    const toggleSelection = (type: string) => {
+        setSelectedTypes(prev =>
+            prev.includes(type)
+                ? prev.filter(t => t !== type)
+                : [...prev, type]
+        );
+    };
+
     const handleAdd = async () => {
-        if (!userId || !selectedType) return;
+        if (!userId || selectedTypes.length === 0) return;
+
+        setLoading(true); // Re-use loading state or add a specific adding state? Using generic loading might hide the UI. Better to use local loading or just wait.
+        // Actually, let's keep it simple.
 
         try {
-            const newEquipment = await addUserEquipment(userId, {
-                equipment_type: selectedType,
-                quantity,
-                weight_kg: weight ? parseFloat(weight) : undefined,
-            });
+            const promises = selectedTypes.map(type =>
+                addUserEquipment(userId, {
+                    equipment_type: type,
+                    quantity: quantity, // Apply same quantity to all
+                    // Only apply weight if single item selected, otherwise undefined to avoid confusion
+                    weight_kg: (selectedTypes.length === 1 && weight) ? parseFloat(weight) : undefined,
+                })
+            );
 
-            setEquipment([...equipment, newEquipment]);
-            setSelectedType("");
+            const newItems = await Promise.all(promises);
+
+            // Refresh functionality is better than appending manually because we might have duplicates handling?
+            // But let's append for speed as before.
+            setEquipment(prev => [...prev, ...newItems]);
+
+            setSelectedTypes([]);
             setQuantity(1);
             setWeight("");
         } catch (error) {
             console.error("Error adding equipment:", error);
             alert("Error al agregar equipamiento");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -85,7 +106,9 @@ export default function EquipmentPage() {
         }
     };
 
-    const selectedEquipmentInfo = EQUIPMENT_TYPES.find(e => e.value === selectedType);
+    const selectedEquipmentInfo = selectedTypes.length === 1
+        ? EQUIPMENT_TYPES.find(e => e.value === selectedTypes[0])
+        : null;
     const hasEquipment = equipment.length > 0;
 
     if (loading) {
@@ -122,11 +145,11 @@ export default function EquipmentPage() {
                                     <button
                                         key={type.value}
                                         type="button"
-                                        onClick={() => setSelectedType(type.value)}
+                                        onClick={() => toggleSelection(type.value)}
                                         disabled={equipment.some(e => e.equipment_type === type.value && !type.hasWeight)}
-                                        className={`py-4 px-4 rounded-xl border-2 font-bold transition-all text-left disabled:opacity-40 disabled:cursor-not-allowed ${selectedType === type.value
-                                                ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                                                : "border-zinc-200 text-zinc-700 hover:border-emerald-200"
+                                        className={`py-4 px-4 rounded-xl border-2 font-bold transition-all text-left disabled:opacity-40 disabled:cursor-not-allowed ${selectedTypes.includes(type.value)
+                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                            : "border-zinc-200 text-zinc-700 hover:border-emerald-200"
                                             }`}
                                     >
                                         <div className="text-2xl mb-1">{type.icon}</div>
@@ -137,7 +160,7 @@ export default function EquipmentPage() {
                         </div>
 
                         {/* Quantity & Weight */}
-                        {selectedType && (
+                        {selectedTypes.length > 0 && (
                             <div className="flex gap-4">
                                 <div className="flex-1">
                                     <label className="text-sm font-bold text-zinc-700 mb-2 block">
@@ -173,11 +196,11 @@ export default function EquipmentPage() {
                         {/* Add Button */}
                         <button
                             onClick={handleAdd}
-                            disabled={!selectedType}
+                            disabled={selectedTypes.length === 0}
                             className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             <Plus className="h-5 w-5" />
-                            Agregar
+                            {selectedTypes.length > 0 ? `Agregar (${selectedTypes.length})` : "Agregar"}
                         </button>
                     </div>
                 </div>
