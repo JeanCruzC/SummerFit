@@ -99,18 +99,18 @@ export default function ExercisesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-black text-zinc-900 mb-2">💪 Ejercicios Disponibles</h1>
-                    <p className="text-zinc-600 text-lg">
+                    <h1 className="text-4xl font-black text-zinc-900 dark:text-white mb-2">💪 Ejercicios Disponibles</h1>
+                    <p className="text-zinc-600 dark:text-zinc-400 text-lg">
                         {filteredExercises.length} ejercicios que puedes hacer con tu equipamiento
                     </p>
                 </div>
 
                 {/* Search & Filters */}
-                <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-6 shadow-2xl mb-8">
+                <div className="bg-white dark:bg-gray-900 backdrop-blur-xl border-2 border-purple-100 dark:border-purple-900 rounded-3xl p-6 shadow-2xl mb-8">
                     {/* Search Bar */}
                     <div className="mb-6">
                         <div className="relative">
@@ -179,9 +179,9 @@ export default function ExercisesPage() {
 
                 {/* Exercise Grid */}
                 {filteredExercises.length === 0 ? (
-                    <div className="text-center py-12 bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8">
+                    <div className="text-center py-12 bg-white dark:bg-gray-900 backdrop-blur-xl border-2 border-purple-100 dark:border-purple-900 rounded-3xl p-8">
                         <Dumbbell className="h-16 w-16 text-zinc-300 mx-auto mb-4" />
-                        <p className="text-zinc-500 font-medium">
+                        <p className="text-zinc-500 dark:text-zinc-400 font-medium">
                             No se encontraron ejercicios con estos filtros.
                         </p>
                     </div>
@@ -213,11 +213,11 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
     const [showInstructions, setShowInstructions] = useState(false);
 
     return (
-        <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all">
+        <div className="bg-white dark:bg-gray-900 backdrop-blur-xl border-2 border-purple-100 dark:border-purple-900 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                    <h3 className="text-xl font-bold text-zinc-900 mb-2 line-clamp-2">
+                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2 line-clamp-2">
                         {exercise.title}
                     </h3>
 
@@ -247,7 +247,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
 
             {/* Description */}
             {exercise.description && (
-                <p className="text-sm text-zinc-600 mb-4 line-clamp-3">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-3">
                     {exercise.description}
                 </p>
             )}
@@ -257,7 +257,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
                 {exercise.body_part && (
                     <div className="text-sm">
                         <span className="font-bold text-zinc-700">Parte del cuerpo:</span>{" "}
-                        <span className="text-zinc-600">{exercise.body_part}</span>
+                        <span className="text-zinc-600 dark:text-zinc-400">{exercise.body_part}</span>
                     </div>
                 )}
 
@@ -267,7 +267,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
                         <span className="text-sm font-bold text-purple-700">
                             {exercise.met} MET
                         </span>
-                        <span className="text-xs text-zinc-500">
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
                             (Intensidad metabólica)
                         </span>
                     </div>
@@ -295,7 +295,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
             <div className="flex gap-2 mt-4">
                 <button
                     onClick={() => setShowInstructions(!showInstructions)}
-                    className="flex-1 py-3 rounded-xl border-2 border-purple-100 text-purple-700 font-bold hover:bg-purple-50 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-3 rounded-xl border-2 border-purple-100 dark:border-purple-900 text-purple-700 font-bold hover:bg-purple-50 transition-all flex items-center justify-center gap-2"
                 >
                     <BookOpen className="h-4 w-4" />
                     {showInstructions ? "Ocultar" : "Instrucciones"}
@@ -331,7 +331,7 @@ function ExerciseCard({ exercise }: { exercise: Exercise }) {
                     )}
 
                     {exercise.instructions && exercise.instructions.length > 0 ? (
-                        <ol className="space-y-2 list-decimal list-inside text-sm text-zinc-600">
+                        <ol className="space-y-2 list-decimal list-inside text-sm text-zinc-600 dark:text-zinc-400">
                             {exercise.instructions.map((step, idx) => (
                                 <li key={idx} className="pl-1 marker:font-bold marker:text-purple-500">
                                     {step}

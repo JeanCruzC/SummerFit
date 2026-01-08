@@ -112,12 +112,12 @@ export default function WorkoutPlansPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
             <div className="max-w-6xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-4xl font-black text-zinc-900 mb-2">📅 Mis Planes</h1>
-                        <p className="text-zinc-600 text-lg">
+                        <h1 className="text-4xl font-black text-zinc-900 dark:text-white mb-2">📅 Mis Planes</h1>
+                        <p className="text-zinc-600 dark:text-zinc-400 text-lg">
                             Organiza tu semana de entrenamiento
                         </p>
                     </div>
@@ -131,10 +131,10 @@ export default function WorkoutPlansPage() {
                 </div>
 
                 {plans.length === 0 ? (
-                    <div className="text-center py-16 bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl shadow-lg">
+                    <div className="text-center py-16 bg-white dark:bg-gray-900 backdrop-blur-xl border-2 border-purple-100 dark:border-purple-900 rounded-3xl shadow-lg">
                         <Calendar className="h-20 w-20 text-purple-200 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold text-zinc-800 mb-2">No tienes planes creados</h3>
-                        <p className="text-zinc-500 mb-6">Crea tu primer plan para comenzar a organizar tus rutinas.</p>
+                        <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">No tienes planes creados</h3>
+                        <p className="text-zinc-500 dark:text-zinc-400 mb-6">Crea tu primer plan para comenzar a organizar tus rutinas.</p>
                         <button
                             onClick={() => setShowCreateModal(true)}
                             className="py-3 px-8 rounded-full border-2 border-purple-500 text-purple-600 font-bold hover:bg-purple-50 transition-all"
@@ -147,7 +147,7 @@ export default function WorkoutPlansPage() {
                         {plans.map((plan) => (
                             <div
                                 key={plan.id}
-                                className={`group relative bg-white/95 backdrop-blur-xl border-2 rounded-3xl p-6 shadow-xl transition-all hover:scale-[1.02] ${plan.is_active ? "border-purple-500 ring-4 ring-purple-50" : "border-purple-100 hover:border-purple-300"
+                                className={`group relative bg-white dark:bg-gray-900 backdrop-blur-xl border-2 rounded-3xl p-6 shadow-xl transition-all hover:scale-[1.02] ${plan.is_active ? "border-purple-500 ring-4 ring-purple-50" : "border-purple-100 dark:border-purple-900 hover:border-purple-300"
                                     }`}
                             >
                                 {plan.is_active && (
@@ -156,18 +156,18 @@ export default function WorkoutPlansPage() {
                                     </div>
                                 )}
 
-                                <h3 className="text-2xl font-bold text-zinc-900 mb-2 pr-16">{plan.name}</h3>
+                                <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 pr-16">{plan.name}</h3>
 
                                 <div className="space-y-3 mb-6">
-                                    <div className="flex items-center gap-2 text-zinc-600">
+                                    <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
                                         <Calendar className="h-5 w-5 text-purple-500" />
                                         <span className="font-medium">{plan.days_per_week} días / semana</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-zinc-600">
+                                    <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
                                         <Activity className="h-5 w-5 text-coral-500" />
                                         <span className="font-medium">~{plan.estimated_calories_weekly} kcal quemadas</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-zinc-600">
+                                    <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
                                         <Zap className="h-5 w-5 text-yellow-500" />
                                         <span className="font-medium">{plan.total_met_hours?.toFixed(1) || 0} Horas MET</span>
                                     </div>
@@ -208,7 +208,7 @@ export default function WorkoutPlansPage() {
                 {showCreateModal && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                         <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-200">
-                            <h2 className="text-2xl font-black text-zinc-900 mb-6">Nuevo Plan</h2>
+                            <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-6">Nuevo Plan</h2>
 
                             <div className="space-y-4">
                                 <div>
@@ -239,7 +239,7 @@ export default function WorkoutPlansPage() {
                                 <div className="flex gap-3 mt-8">
                                     <button
                                         onClick={() => setShowCreateModal(false)}
-                                        className="flex-1 py-3 rounded-xl border-2 border-zinc-200 font-bold text-zinc-600 hover:bg-zinc-50"
+                                        className="flex-1 py-3 rounded-xl border-2 border-zinc-200 font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50"
                                     >
                                         Cancelar
                                     </button>

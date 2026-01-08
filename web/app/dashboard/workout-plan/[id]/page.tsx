@@ -187,11 +187,11 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                 <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button onClick={() => router.back()} className="p-2 hover:bg-zinc-100 rounded-full">
-                            <ArrowLeft className="h-6 w-6 text-zinc-600" />
+                            <ArrowLeft className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
                         </button>
                         <div>
-                            <h1 className="text-xl font-bold text-zinc-900">{planDetails.name}</h1>
-                            <div className="flex items-center gap-4 text-sm text-zinc-500">
+                            <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{planDetails.name}</h1>
+                            <div className="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
                                 <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {planDetails.total_met_hours.toFixed(1)}h MET</span>
                                 <span className="flex items-center gap-1"><Flame className="h-4 w-4 text-coral-500" /> {Math.round(planDetails.estimated_calories_weekly)} kcal/sem</span>
                             </div>
@@ -235,13 +235,13 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                                             dayExercises.map((ex) => (
                                                 <div key={ex.id} className="group relative bg-white border border-zinc-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all">
                                                     <div className="flex justify-between items-start mb-2">
-                                                        <h4 className="font-bold text-sm text-zinc-900 line-clamp-1" title={ex.exercise?.title}>{ex.exercise?.title}</h4>
+                                                        <h4 className="font-bold text-sm text-zinc-900 dark:text-white line-clamp-1" title={ex.exercise?.title}>{ex.exercise?.title}</h4>
                                                         <button onClick={() => ex.id && handleRemove(ex.id)} className="text-zinc-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
                                                     </div>
 
                                                     <div className="grid grid-cols-3 gap-2 text-xs">
                                                         <div>
-                                                            <label className="block text-zinc-500 mb-1">Sets</label>
+                                                            <label className="block text-zinc-500 dark:text-zinc-400 mb-1">Sets</label>
                                                             <input
                                                                 type="number"
                                                                 className="w-full bg-zinc-50 border rounded px-1 py-1"
@@ -250,7 +250,7 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-zinc-500 mb-1">Reps</label>
+                                                            <label className="block text-zinc-500 dark:text-zinc-400 mb-1">Reps</label>
                                                             <input
                                                                 type="number" // Could be text for range "8-12"
                                                                 className="w-full bg-zinc-50 border rounded px-1 py-1"
@@ -259,7 +259,7 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-zinc-500 mb-1">Min</label>
+                                                            <label className="block text-zinc-500 dark:text-zinc-400 mb-1">Min</label>
                                                             <input
                                                                 type="number"
                                                                 className="w-full bg-zinc-50 border rounded px-1 py-1"
@@ -297,8 +297,8 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                     <div className="bg-white w-full max-w-2xl h-[80vh] rounded-3xl shadow-2xl border border-zinc-200 flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
                             <div>
-                                <h2 className="text-2xl font-black text-zinc-900">Agregar al Día {selectedDay}</h2>
-                                <p className="text-zinc-500 text-sm">Mostrando ejercicios compatibles con tu equipo</p>
+                                <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Agregar al Día {selectedDay}</h2>
+                                <p className="text-zinc-500 dark:text-zinc-400 text-sm">Mostrando ejercicios compatibles con tu equipo</p>
                             </div>
                             <button onClick={() => setShowPicker(false)} className="p-2 hover:bg-zinc-100 rounded-full">✕</button>
                         </div>
@@ -325,8 +325,8 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                                     className="w-full text-left p-4 rounded-xl hover:bg-purple-50 border border-transparent hover:border-purple-200 transition-all group flex items-start justify-between"
                                 >
                                     <div>
-                                        <h4 className="font-bold text-zinc-900 group-hover:text-purple-700">{ex.title}</h4>
-                                        <div className="flex gap-2 text-xs mt-1 text-zinc-500">
+                                        <h4 className="font-bold text-zinc-900 dark:text-white group-hover:text-purple-700">{ex.title}</h4>
+                                        <div className="flex gap-2 text-xs mt-1 text-zinc-500 dark:text-zinc-400">
                                             <span className="bg-zinc-100 px-2 py-0.5 rounded">{ex.body_part}</span>
                                             <span className="bg-zinc-100 px-2 py-0.5 rounded">{ex.type}</span>
                                             {ex.met && <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> {ex.met}</span>}

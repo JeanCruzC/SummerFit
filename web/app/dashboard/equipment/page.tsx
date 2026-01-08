@@ -124,19 +124,19 @@ export default function EquipmentPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-black text-zinc-900 mb-2">🏋️ Mi Equipamiento</h1>
-                    <p className="text-zinc-600 text-lg">
+                    <h1 className="text-4xl font-black text-zinc-900 dark:text-white mb-2">🏋️ Mi Equipamiento</h1>
+                    <p className="text-zinc-600 dark:text-zinc-400 text-lg">
                         Configura qué equipamiento tienes disponible para entrenar
                     </p>
                 </div>
 
                 {/* Add Equipment Form */}
-                <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8 shadow-2xl mb-8">
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-6">Agregar Equipamiento</h2>
+                <div className="bg-white dark:bg-gray-900 backdrop-blur-xl border-2 border-purple-100 dark:border-purple-900 rounded-3xl p-8 shadow-2xl mb-8">
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Agregar Equipamiento</h2>
 
                     <div className="space-y-6">
                         {/* Equipment Type */}
@@ -210,13 +210,13 @@ export default function EquipmentPage() {
                 </div>
 
                 {/* Equipment List */}
-                <div className="bg-white/95 backdrop-blur-xl border-2 border-purple-100 rounded-3xl p-8 shadow-2xl">
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-6">Tu Equipamiento</h2>
+                <div className="bg-white dark:bg-gray-900 backdrop-blur-xl border-2 border-purple-100 dark:border-purple-900 rounded-3xl p-8 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Tu Equipamiento</h2>
 
                     {!hasEquipment ? (
                         <div className="text-center py-12">
                             <Dumbbell className="h-16 w-16 text-zinc-300 mx-auto mb-4" />
-                            <p className="text-zinc-500 font-medium">
+                            <p className="text-zinc-500 dark:text-zinc-400 font-medium">
                                 Aún no has agregado equipamiento. <br />
                                 Agrega lo que tienes disponible arriba.
                             </p>
@@ -233,10 +233,10 @@ export default function EquipmentPage() {
                                         <div className="flex items-center gap-4">
                                             <div className="text-3xl">{equipType?.icon || "🏋️"}</div>
                                             <div>
-                                                <div className="font-bold text-zinc-900">
+                                                <div className="font-bold text-zinc-900 dark:text-white">
                                                     {item.equipment_type}
                                                 </div>
-                                                <div className="text-sm text-zinc-600">
+                                                <div className="text-sm text-zinc-600 dark:text-zinc-400">
                                                     {item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}
                                                     {item.weight_kg && ` × ${item.weight_kg} kg`}
                                                 </div>
