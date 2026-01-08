@@ -165,9 +165,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <Link
                                             key={item.key}
                                             href={item.href}
-                                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"
+                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${isActive
+                                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 font-bold"
+                                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                                                }`}
                                         >
-                                            <item.icon className="h-5 w-5" />
+                                            <item.icon className={`h-5 w-5 ${isActive ? "text-purple-600 dark:text-purple-400" : ""}`} />
                                             <span className="text-sm font-medium">{item.label}</span>
                                         </Link>
                                     );
