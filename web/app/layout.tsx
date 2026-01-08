@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Manrope } from "next/font/google";
 import "./globals.css";
@@ -11,8 +11,31 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "SummerFit",
-  description: "Premium fitness dashboard"
+  title: "SummerFit - Tu Entrenador Personal",
+  description: "Aplicación de fitness y nutrición personalizada para adolescentes",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SummerFit",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "SummerFit",
+    title: "SummerFit - Tu Entrenador Personal",
+    description: "Aplicación de fitness y nutrición personalizada",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#8b5cf6",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 const themeScript = `(() => {
@@ -26,6 +49,21 @@ const themeScript = `(() => {
   }
 })();`;
 
+const registerSW = `
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').then(
+      function(registration) {
+        console.log('SW registered: ', registration.scope);
+      },
+      function(err) {
+        console.log('SW registration failed: ', err);
+      }
+    );
+  });
+}
+`;
+
 export default function RootLayout({
   children
 }: {
@@ -37,6 +75,12 @@ export default function RootLayout({
         <Script id="theme-script" strategy="beforeInteractive">
           {themeScript}
         </Script>
+        <Script id="register-sw" strategy="afterInteractive">
+          {registerSW}
+        </Script>
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
       </head>
       <body className={`${manrope.variable} font-sans bg-canvas text-ink antialiased`}>
         {children}
