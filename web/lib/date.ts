@@ -3,11 +3,10 @@
  * This avoids the issue where converting to ISO string (UTC) might return
  * the previous or next day depending on the user's timezone.
  */
-export function getUserLocalDate(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+export function getUserLocalDate(dateObj: Date = new Date()): string {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
 }
