@@ -8,6 +8,7 @@ import {
     PieChart, Scale, Settings, Sun, Target, TrendingDown, UtensilsCrossed, User, X, Zap, ClipboardList
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const NAV_ITEMS = [
     { key: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
@@ -203,6 +204,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
                     </main>
                 </div>
+
+                {/* PWA Install Prompt */}
+                <InstallPrompt />
             </div>
         </div>
     );
