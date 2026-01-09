@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap } from "lucide-react";
+import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap, Dumbbell } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, StatCard, ProgressBar, Segmented, Chip, Alert, RingProgress, Button } from "@/components/ui";
@@ -167,6 +167,32 @@ export default function DashboardPage() {
                         SummerFit no se hace responsable de resultados adversos. Consulta a un profesional de la salud.
                     </p>
                 </Alert>
+            )}
+
+            {/* Active Routine Widget */}
+            {activePlan && (
+                <Card className="bg-gradient-to-r from-zinc-900 to-zinc-800 text-white border-none relative overflow-hidden">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
+                                <Dumbbell className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">RUTINA ACTIVA</div>
+                                <h3 className="text-xl font-bold">{activePlan.name}</h3>
+                                <p className="text-sm text-zinc-400">{activePlan.days_per_week} días / semana</p>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={() => router.push(`/dashboard/workout-plan/${activePlan.id}`)}
+                            className="bg-white text-zinc-900 hover:bg-zinc-100 border-none font-bold px-6"
+                        >
+                            Ver Rutina
+                        </Button>
+                    </div>
+                    {/* Abstract bg decoration */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-32 pointer-events-none"></div>
+                </Card>
             )}
 
             {/* Main Goal Card */}

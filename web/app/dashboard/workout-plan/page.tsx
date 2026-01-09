@@ -124,14 +124,33 @@ export default function WorkoutPlansPage() {
                             Organiza tu semana de entrenamiento
                         </p>
                     </div>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="py-3 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold hover:shadow-lg transition-all flex items-center gap-2"
-                    >
-                        <Plus className="h-5 w-5" />
-                        Nuevo Plan
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => router.push('/dashboard/generator')}
+                            className="hidden md:flex py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-purple-500/25 transition-all items-center gap-2"
+                        >
+                            <Zap className="h-5 w-5" />
+                            Generar con IA
+                        </button>
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="py-3 px-6 rounded-xl bg-white dark:bg-gray-800 text-zinc-700 dark:text-zinc-200 border border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
+                        >
+                            <Plus className="h-5 w-5" />
+                            <span className="hidden md:inline">Crear Manualmente</span>
+                            <span className="md:hidden">Nuevo</span>
+                        </button>
+                    </div>
                 </div>
+
+                {/* Mobile AI Button (Full Width) */}
+                <button
+                    onClick={() => router.push('/dashboard/generator')}
+                    className="md:hidden w-full mb-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2"
+                >
+                    <Zap className="h-5 w-5" />
+                    Generar Rutina Inteligente
+                </button>
 
                 {plans.length === 0 ? (
                     <div className="text-center py-12 md:py-16 bg-white dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm dark:shadow-none">
