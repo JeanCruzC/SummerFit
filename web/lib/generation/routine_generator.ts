@@ -1,78 +1,206 @@
 import { createClient } from '../supabase/client';
 import type { Exercise, UserEquipment } from '@/types';
+import { SmartCoach } from '../intelligence/smart_coach';
+import { FrequencyEngine, SplitType } from '../intelligence/frequency_engine';
+import { IntensityManager } from '../intelligence/intensity_manager';
 
 // ============================================
 // Types
 // ============================================
 
-export type RoutineGoal = 'hypertrophy' | 'strength' | 'endurance';
+export type RoutineGoal = 'hypertrophy' | 'strength' | 'recomposition' | 'fat_loss' | 'maintenance';
 export type RoutineLevel = 'beginner' | 'intermediate' | 'advanced';
-export type RoutineSplit = 'push_pull_legs' | 'upper_lower' | 'full_body';
 
 export interface RoutineRequest {
     goal: RoutineGoal;
     level: RoutineLevel;
-    split: RoutineSplit;
-    equipment: UserEquipment[]; // Uses updated type from project
+    daysAvailable: number; // New Input
+    timePerSession?: number; // Minutes
+    equipment: UserEquipment[];
 }
 
 export interface GeneratedRoutine {
     name: string;
     description: string;
+    split: SplitType;
     days: GeneratedDay[];
+    weeklyVolume: number; // Sets per week suggestion
 }
 
 export interface GeneratedDay {
     dayName: string;
-    focus: string; // "Push - Chest/Delts/Triceps"
+    focus: string;
     exercises: GeneratedExercise[];
 }
 
 export interface GeneratedExercise {
     exercise: Exercise;
     sets: number;
-    reps: string;
-    rest: string;
-    reason: string; // "Selected for high hypertrophy score (5/5)"
-    note?: string; // "Focus on slow eccentric"
+    reps: string; // Range "8-12"
+    rest: string; // "90s"
+    tempo: string; // "2-0-1-0"
+    rir: string; // "1-2 RIR"
+    reason: string;
+    note?: string;
 }
 
 // ============================================
-// Scientific Constants (The "Encyclopedia" Logic)
+// Biomechanical Templates (The Intelligence Maps)
 // ============================================
 
-const TARGET_Volume = {
-    hypertrophy: { sets: 3, reps: "8-12", rest: "90s" },
-    strength: { sets: 4, reps: "3-6", rest: "3min" },
-    endurance: { sets: 2, reps: "15-20", rest: "60s" }
-};
-
-// Biomechanical Slots for PPL
-// 1. Slot Name
-// 2. Required Pattern
-// 3. Selection Weight (Hypertrophy vs Stability)
-const PPL_TEMPLATE = {
-    push: [
-        { id: 'compound_press_horiz', pattern: 'horizontal_press', role: 'Main Builder' },
-        { id: 'compound_press_vert', pattern: 'vertical_press', role: 'Shoulder Builder' },
-        { id: 'isolation_chest', pattern: 'chest_fly', role: 'Chest Stretch' },
-        { id: 'isolation_triceps', pattern: 'triceps_extension', role: 'Triceps Mass' },
-        { id: 'isolation_delts', pattern: 'shoulder_raise', role: 'Side Delts' }
+const SPLIT_TEMPLATES: Record<SplitType, any> = {
+    'full_body': [
+        {
+            name: "Full Body A",
+            focus: "Global Hypertrophy",
+            slots: [
+                { id: 'compound_knee', pattern: 'squat', role: 'compound_heavy' },
+                { id: 'compound_press_horiz', pattern: 'horizontal_press', role: 'compound_medium' },
+                { id: 'compound_pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
+                { id: 'compound_hinge_light', pattern: 'hip_hinge', role: 'compound_medium' },
+                { id: 'isolation_delts', pattern: 'shoulder_raise', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Full Body B",
+            focus: "Strength & Power",
+            slots: [
+                { id: 'compound_hinge', pattern: 'hip_hinge', role: 'compound_heavy' },
+                { id: 'compound_press_vert', pattern: 'vertical_press', role: 'compound_heavy' },
+                { id: 'unilateral_leg', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'compound_pull_horiz', pattern: 'horizontal_pull', role: 'compound_medium' },
+                { id: 'isolation_arms', pattern: 'elbow_flexion_curl', role: 'isolation' }
+            ]
+        },
+        // In a real app, we would have C, D etc to cycle through 3 days
+        {
+            name: "Full Body C",
+            focus: "Metabolic / Accessory",
+            slots: [
+                { id: 'compound_knee_2', pattern: 'leg_press_squat', role: 'compound_medium' },
+                { id: 'isolation_chest', pattern: 'chest_fly', role: 'isolation' },
+                { id: 'isolation_back', pattern: 'scapular_retraction', role: 'isolation' },
+                { id: 'isolation_triceps', pattern: 'triceps_extension', role: 'isolation' },
+                { id: 'isolation_abs', pattern: 'core_flexion', role: 'isolation' }
+            ]
+        }
     ],
-    pull: [
-        { id: 'compound_pull_vert', pattern: 'vertical_pull', role: 'Lats Width' },
-        { id: 'compound_pull_horiz', pattern: 'horizontal_pull', role: 'Back Thickness' },
-        { id: 'prehab_delts', pattern: 'scapular_retraction', role: 'Shoulder Health' },
-        { id: 'isolation_biceps', pattern: 'elbow_flexion_curl', role: 'Biceps Peak' },
-        { id: 'isolation_biceps_2', pattern: 'elbow_flexion_curl', role: 'Biceps Stretch/Volume' }
+    'upper_lower': [
+        {
+            name: "Upper A (Strength)",
+            focus: "Torso Power",
+            slots: [
+                { id: 'compound_press_horiz', pattern: 'horizontal_press', role: 'compound_heavy' },
+                { id: 'compound_pull_horiz', pattern: 'horizontal_pull', role: 'compound_heavy' },
+                { id: 'compound_press_vert', pattern: 'vertical_press', role: 'compound_medium' },
+                { id: 'compound_pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
+                { id: 'isolation_arms', pattern: 'elbow_flexion_curl', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Lower A (Squat Focus)",
+            focus: "Leg Power",
+            slots: [
+                { id: 'compound_knee', pattern: 'squat', role: 'compound_heavy' },
+                { id: 'compound_hinge_light', pattern: 'hip_hinge', role: 'compound_medium' },
+                { id: 'unilateral_leg', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'isolation_calves', pattern: 'calf_raise', role: 'isolation' },
+                { id: 'isolation_abs', pattern: 'core_flexion', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Upper B (Hypertrophy)",
+            focus: "Torso Volume",
+            slots: [
+                { id: 'compound_press_vert', pattern: 'vertical_press', role: 'compound_medium' },
+                { id: 'compound_pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
+                { id: 'compound_press_inc', pattern: 'horizontal_press', role: 'compound_medium' }, --Incline ideal
+                 { id: 'isolation_delts', pattern: 'shoulder_raise', role: 'isolation' },
+                { id: 'isolation_triceps', pattern: 'triceps_extension', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Lower B (Hinge Focus)",
+            focus: "Posterior Chain",
+            slots: [
+                { id: 'compound_hinge', pattern: 'hip_hinge', role: 'compound_heavy' },
+                { id: 'compound_knee_2', pattern: 'leg_press_squat', role: 'compound_medium' },
+                { id: 'isolation_hamstring', pattern: 'knee_flexion_isolation', role: 'isolation' },
+                { id: 'isolation_calves', pattern: 'calf_raise', role: 'isolation' }
+            ]
+        }
     ],
-    legs: [
-        { id: 'compound_knee', pattern: 'squat', role: 'Quads/Glutes Builder' },
-        { id: 'compound_hinge', pattern: 'hip_hinge', role: 'Hamstrings/Back' },
-        { id: 'unilateral_leg', pattern: 'lunge_step', role: 'Stability/Glutes' },
-        { id: 'isolation_hamstring', pattern: 'knee_flexion_isolation', role: 'Hamstring Isolation' },
-        { id: 'isolation_calves', pattern: 'calf_raise', role: 'Calves' }
-    ]
+    'ppl': [
+        {
+            name: "Push A", headers: "Chest/Shoulders/Tri",
+            slots: [
+                { id: 'press_horiz', pattern: 'horizontal_press', role: 'compound_heavy' },
+                { id: 'press_vert', pattern: 'vertical_press', role: 'compound_medium' },
+                { id: 'iso_chest', pattern: 'chest_fly', role: 'isolation' },
+                { id: 'iso_tri', pattern: 'triceps_extension', role: 'isolation' },
+                { id: 'iso_delt', pattern: 'shoulder_raise', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Pull A", headers: "Back/Bi/Rear Delt",
+            slots: [
+                { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_heavy' },
+                { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_medium' },
+                { id: 'prehab', pattern: 'scapular_retraction', role: 'isolation' },
+                { id: 'iso_bi', pattern: 'elbow_flexion_curl', role: 'isolation' },
+                { id: 'iso_bi2', pattern: 'elbow_flexion_curl', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Legs A", headers: "Quads/Hams/Glutes",
+            slots: [
+                { id: 'squat', pattern: 'squat', role: 'compound_heavy' },
+                { id: 'hinge', pattern: 'hip_hinge', role: 'compound_medium' },
+                { id: 'lunge', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'curl', pattern: 'knee_flexion_isolation', role: 'isolation' },
+                { id: 'calf', pattern: 'calf_raise', role: 'isolation' }
+            ]
+        },
+        { name: "Push B", slots: [] }, // Simplified for MVP
+        { name: "Pull B", slots: [] },
+        { name: "Legs B", slots: [] }
+    ],
+    'arnold': [
+        {
+            name: "Chest & Back",
+            focus: "Antagonist Super-Pump",
+            slots: [
+                { id: 'press_horiz', pattern: 'horizontal_press', role: 'compound_heavy' },
+                { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_heavy' },
+                { id: 'press_inc', pattern: 'horizontal_press', role: 'compound_medium' },
+                { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
+                { id: 'fly', pattern: 'chest_fly', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Shoulders & Arms",
+            focus: "Delts & Gun Show",
+            slots: [
+                { id: 'press_vert', pattern: 'vertical_press', role: 'compound_heavy' },
+                { id: 'iso_delt', pattern: 'shoulder_raise', role: 'isolation' },
+                { id: 'iso_bi', pattern: 'elbow_flexion_curl', role: 'isolation' },
+                { id: 'iso_tri', pattern: 'triceps_extension', role: 'isolation' },
+                { id: 'iso_rear', pattern: 'scapular_retraction', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Legs",
+            focus: "Lower Body Destruction",
+            slots: [
+                { id: 'squat', pattern: 'squat', role: 'compound_heavy' },
+                { id: 'hinge', pattern: 'hip_hinge', role: 'compound_medium' },
+                { id: 'lunge', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'calf', pattern: 'calf_raise', role: 'isolation' }
+            ]
+        }
+    ],
+    'bro_split': [], // To be implemented
+    'ulppl': []
 };
 
 // ============================================
@@ -82,43 +210,68 @@ const PPL_TEMPLATE = {
 export class RoutineGenerator {
     private supabase = createClient();
 
-    /**
-     * Main entry point to generate a routine
-     */
     async generate(request: RoutineRequest): Promise<GeneratedRoutine> {
-        console.log("⚡ Generating routine for:", request);
+        console.log("🧠 Smart Coach Generating for:", request);
 
-        // 1. Fetch Candidate Exercises
-        // We need a pool of exercises that match the user's equipment
-        // We do NOT filter by level yet (we use level for scoring/penalties)
+        // 1. DIALOG WITH THE BRAIN
+        // Get the optimal split and volume from Smart Coach
+        const diagnosis = SmartCoach.generateProfile(
+            request.level,
+            request.goal,
+            request.daysAvailable
+        );
+
+        const recommendedSplit = diagnosis.recommendations.split.split;
+        const volumeTargets = diagnosis.recommendations.weekly_sets;
+
+        console.log("💡 Brain Recommendation:", diagnosis);
+
+        // 2. FETCH CANDIDATES
         const candidates = await this.fetchCandidates(request.equipment);
+        if (candidates.length < 10) throw new Error("Need more equipment options to build a full routine.");
 
-        if (candidates.length < 10) {
-            throw new Error("Insufficient exercises found for your equipment. Try adding more equipment/Bodyweight.");
+        // 3. SELECT TEMPLATE
+        // Fallback to PPL if template not fully defined
+        let template = SPLIT_TEMPLATES[recommendedSplit];
+        if (!template || template.length === 0) {
+            console.warn(`Template for ${recommendedSplit} not ready, falling back to PPL`);
+            template = SPLIT_TEMPLATES['ppl'];
         }
 
-        // 2. Select Exercises based on Split
-        let days: GeneratedDay[] = [];
+        // 4. BUILD DAYS
+        // We only generate unique days from the template to fit the daysAvailable
+        // e.g. if 3 days available and using Full Body template (which has A, B, C), we use A, B, C.
+        const generatedDays: GeneratedDay[] = [];
 
-        if (request.split === 'push_pull_legs') {
-            days = [
-                this.buildDay('Push (Empuje)', 'Pectoral, Hombro, Tríceps', PPL_TEMPLATE.push, candidates, request),
-                this.buildDay('Pull (Tracción)', 'Espalda, Bíceps, Deltoides Post.', PPL_TEMPLATE.pull, candidates, request),
-                this.buildDay('Legs (Pierna)', 'Cuádriceps, Femoral, Glúteo', PPL_TEMPLATE.legs, candidates, request)
-            ];
-        } else {
-            // Fallback to PPL for now as MVP
-            days = [
-                this.buildDay('Push (Empuje)', 'Pectoral, Hombro, Tríceps', PPL_TEMPLATE.push, candidates, request),
-                this.buildDay('Pull (Tracción)', 'Espalda, Bíceps, Deltoides Post.', PPL_TEMPLATE.pull, candidates, request),
-                this.buildDay('Legs (Pierna)', 'Cuádriceps, Femoral, Glúteo', PPL_TEMPLATE.legs, candidates, request)
-            ];
+        // Loop through the template days available
+        // Note: Logic here is simplified. In a real app we map "Monday -> Upper A", etc.
+        // For now we just return the days defined in the template up to a limit.
+        const daysToGenerate = Math.min(request.daysAvailable, template.length);
+
+        for (let i = 0; i < daysToGenerate; i++) {
+            const templateDay = template[i];
+
+            // Should be empty day? (e.g. for PPL placeholder)
+            if (!templateDay.slots || templateDay.slots.length === 0) {
+                // Clone day 0 if needed (A/B cycle logic)
+                const clone = generatedDays[i % 3]; // Clone P, P or L
+                if (clone) {
+                    generatedDays.push({ ...clone, dayName: templateDay.name || `Day ${i + 1}` });
+                }
+                continue;
+            }
+
+            generatedDays.push(
+                this.buildDay(templateDay.name, templateDay.focus, templateDay.slots, candidates, request, volumeTargets.optimal_sets)
+            );
         }
 
         return {
-            name: `${this.capitalize(request.goal)} ${this.capitalize(request.split)} Routine`,
-            description: `A science-based routine optimized for ${request.goal} using your available equipment. Focuses on biomechanical balance.`,
-            days
+            name: `${this.capitalize(request.goal)} ${this.capitalize(recommendedSplit)} Protocol`,
+            description: diagnosis.recommendations.split.description,
+            split: recommendedSplit,
+            days: generatedDays,
+            weeklyVolume: volumeTargets.optimal_sets
         };
     }
 
@@ -128,11 +281,8 @@ export class RoutineGenerator {
 
     private async fetchCandidates(equipment: UserEquipment[]): Promise<Exercise[]> {
         const availableEq = equipment.map(e => e.equipment_type);
-        // Add defaults
         availableEq.push('Peso corporal', 'None', 'Ninguno', 'Bodyweight');
 
-        // Fetch ALL exercises that match equipment
-        // We need movement_pattern to be populated!
         const { data, error } = await this.supabase
             .from('exercises')
             .select('*')
@@ -142,90 +292,72 @@ export class RoutineGenerator {
         return data || [];
     }
 
-    private buildDay(dayName: string, focus: string, templateSlots: any[], candidates: Exercise[], request: RoutineRequest): GeneratedDay {
+    private buildDay(
+        dayName: string,
+        focus: string,
+        slots: any[],
+        candidates: Exercise[],
+        request: RoutineRequest,
+        optimalWeeklyVolume: number
+    ): GeneratedDay {
         const dayExercises: GeneratedExercise[] = [];
         const usedIds = new Set<number>();
 
-        for (const slot of templateSlots) {
-            // 1. Filter candidates for this slot (Pattern match)
+        // Sets per exercise logic:
+        // If optimal weekly volume is 15 sets/muscle, and frequency is 2x,
+        // we need ~7-8 sets per muscle per session.
+        // If the day has 2 chest exercises, each gets ~3-4 sets.
+        // Simplified: 3-4 sets per main lift, 2-3 per accessory.
+
+        for (const slot of slots) {
+            // Filter candidates
             const slotCandidates = candidates.filter(ex =>
                 ex.movement_pattern === slot.pattern && !usedIds.has(ex.id)
             );
 
-            // 2. Score them
-            const scoredCandidates = slotCandidates.map(ex => ({
-                exercise: ex,
-                score: this.calculateScore(ex, request)
-            }));
+            // Score with old logic (still valid for selection)
+            const scored = slotCandidates.map(ex => ({
+                ex, score: this.calculateScore(ex, request)
+            })).sort((a, b) => b.score - a.score);
 
-            // 3. Sort by Score Descending
-            scoredCandidates.sort((a, b) => b.score - a.score);
-
-            // 4. Pick the winner
-            const winner = scoredCandidates[0];
+            const winner = scored[0];
 
             if (winner) {
-                usedIds.add(winner.exercise.id);
-                // Determine Volume based on Goal
-                const volume = TARGET_Volume[request.goal];
+                usedIds.add(winner.ex.id);
+
+                // ASK THE INTENSITY MANAGER
+                const params = SmartCoach.getExerciseRole(request.goal, slot.role); // role: 'compound_heavy' etc
+
+                // Determine sets based on role
+                const sets = slot.role.includes('heavy') ? 4 : 3;
 
                 dayExercises.push({
-                    exercise: winner.exercise,
-                    sets: volume.sets,
-                    reps: volume.reps,
-                    rest: volume.rest,
-                    reason: `Selected for ${slot.role} (Score: ${winner.score.toFixed(1)}/5)`
+                    exercise: winner.ex,
+                    sets: sets,
+                    reps: `${params.reps[0]}-${params.reps[1]}`, // "6-10"
+                    rest: `${params.rest[0]}-${params.rest[1]}s`, // "120-180s"
+                    tempo: params.tempo,
+                    rir: `${params.rir[0]}-${params.rir[1]} RIR`,
+                    reason: `Best fit for ${slot.role} (Score: ${winner.score.toFixed(1)})`,
+                    note: params.note
                 });
-            } else {
-                console.warn(`No candidate found for slot: ${slot.pattern}`);
             }
         }
 
-        return {
-            dayName,
-            focus,
-            exercises: dayExercises
-        };
+        return { dayName, focus, exercises: dayExercises };
     }
 
-    /**
-     * The "Secret Sauce" Formula
-     */
     private calculateScore(ex: Exercise, req: RoutineRequest): number {
-        let score = 0;
-
-        // Base: Hypertrophy Score (from Science JSON)
-        // If missing, assume average (2.5)
-        const hScore = ex.score_hypertrophy || 2.5;
-
-        // Weights change based on goal
-        if (req.goal === 'hypertrophy') {
-            score += hScore * 1.0; // High weight on hypertrophy potential
-        } else if (req.goal === 'strength') {
-            score += (ex.score_strength || 2.5) * 1.0;
-        } else {
-            score += hScore * 0.5;
-        }
-
-        // Stability Bonus (Stable exercises are better for raw output)
-        if (ex.score_stability) {
-            score += (ex.score_stability - 3) * 0.2; // Bonus if > 3, penalty if < 3
-        }
-
-        // Level Penalties
-        // If user is beginner, heavily penalize high difficulty/risk
-        if (req.level === 'beginner') {
-            if (ex.level === 'Avanzado') score -= 2; // Hard penalty
-            if ((ex.score_difficulty || 0) > 3) score -= 1;
-            if ((ex.score_risk || 0) > 3) score -= 1;
-        }
-
-        // Diversity Bonus/Malus?? (Not needed per exercise, handled by slots)
-
+        // Reuse existing scoring logic
+        let score = ex.score_hypertrophy || 2.5;
+        if (req.goal === 'strength') score += (ex.score_strength || 2.5);
+        if (ex.equipment_required?.includes('barbell')) score += 0.5; // Bias towards free weights
         return score;
     }
 
     private capitalize(s: string) {
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
+}
+
 }
