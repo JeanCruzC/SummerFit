@@ -114,8 +114,8 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
             slots: [
                 { id: 'compound_press_vert', pattern: 'vertical_press', role: 'compound_medium' },
                 { id: 'compound_pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
-                { id: 'compound_press_inc', pattern: 'horizontal_press', role: 'compound_medium' }, --Incline ideal
-                 { id: 'isolation_delts', pattern: 'shoulder_raise', role: 'isolation' },
+                { id: 'compound_press_inc', pattern: 'horizontal_press', role: 'compound_medium' }, // Incline ideal
+                { id: 'isolation_delts', pattern: 'shoulder_raise', role: 'isolation' },
                 { id: 'isolation_triceps', pattern: 'triceps_extension', role: 'isolation' }
             ]
         },
@@ -360,4 +360,4 @@ export class RoutineGenerator {
     }
 }
 
-}
+
