@@ -5,7 +5,7 @@
  * 
  * Logic:
  * Determines effective weekly sets per muscle group.
- * - Beginners: 10-14 sets (Neural adaptation focus)
+ * - Beginners: 8-12 sets (Neural adaptation focus)
  * - Intermediates: 12-18 sets (Myofibrillar hypertrophy)
  * - Advanced: 15-22 sets (High volume tolerance needed)
  * 

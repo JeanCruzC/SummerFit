@@ -13,7 +13,7 @@
 
 export type SplitType = 'full_body' | 'upper_lower' | 'ppl' | 'arnold' | 'bro_split' | 'ulppl';
 
-interface SplitRecommendation {
+export interface SplitRecommendation {
     split: SplitType;
     frequency_per_muscle: number;
     description: string;

@@ -132,7 +132,7 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
     ],
     'ppl': [
         {
-            name: "Push A", headers: "Chest/Shoulders/Tri",
+            name: "Push A", focus: "Chest/Shoulders/Tri",
             slots: [
                 { id: 'press_horiz', pattern: 'horizontal_press', role: 'compound_heavy' },
                 { id: 'press_vert', pattern: 'vertical_press', role: 'compound_medium' },
@@ -142,7 +142,7 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
             ]
         },
         {
-            name: "Pull A", headers: "Back/Bi/Rear Delt",
+            name: "Pull A", focus: "Back/Bi/Rear Delt",
             slots: [
                 { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_heavy' },
                 { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_medium' },
@@ -152,7 +152,7 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
             ]
         },
         {
-            name: "Legs A", headers: "Quads/Hams/Glutes",
+            name: "Legs A", focus: "Quads/Hams/Glutes",
             slots: [
                 { id: 'squat', pattern: 'squat', role: 'compound_heavy' },
                 { id: 'hinge', pattern: 'hip_hinge', role: 'compound_medium' },
@@ -211,7 +211,8 @@ export class RoutineGenerator {
     private supabase = createClient();
 
     async generate(request: RoutineRequest): Promise<GeneratedRoutine> {
-        console.log("🧠 Smart Coach Generating for:", request);
+        const sanitizedRequest = { ...request, equipment: `[${request.equipment.length} items]` };
+        console.log("🧠 Smart Coach Generating for:", sanitizedRequest);
 
         // 1. DIALOG WITH THE BRAIN
         // Get the optimal split and volume from Smart Coach
@@ -224,11 +225,11 @@ export class RoutineGenerator {
         const recommendedSplit = diagnosis.recommendations.split.split;
         const volumeTargets = diagnosis.recommendations.weekly_sets;
 
-        console.log("💡 Brain Recommendation:", diagnosis);
+        console.log("💡 Brain Recommendation:", { split: recommendedSplit, volume: volumeTargets.optimal_sets });
 
         // 2. FETCH CANDIDATES
         const candidates = await this.fetchCandidates(request.equipment);
-        if (candidates.length < 10) throw new Error("Need more equipment options to build a full routine.");
+        if (candidates.length < 10) throw new Error(`Insufficient exercise options (${candidates.length} found). Add more equipment types.`);
 
         // 3. SELECT TEMPLATE
         // Fallback to PPL if template not fully defined
@@ -254,8 +255,9 @@ export class RoutineGenerator {
             // Should be empty day? (e.g. for PPL placeholder)
             if (!templateDay.slots || templateDay.slots.length === 0) {
                 // Clone day 0 if needed (A/B cycle logic)
-                const clone = generatedDays[i % 3]; // Clone P, P or L
-                if (clone) {
+                const cloneIndex = i % 3;
+                if (cloneIndex < generatedDays.length) {
+                    const clone = generatedDays[cloneIndex];
                     generatedDays.push({ ...clone, dayName: templateDay.name || `Day ${i + 1}` });
                 }
                 continue;
@@ -348,10 +350,17 @@ export class RoutineGenerator {
     }
 
     private calculateScore(ex: Exercise, req: RoutineRequest): number {
-        // Reuse existing scoring logic
-        let score = ex.score_hypertrophy || 2.5;
-        if (req.goal === 'strength') score += (ex.score_strength || 2.5);
-        if (ex.equipment_required?.includes('barbell')) score += 0.5; // Bias towards free weights
+        let score = 0;
+        
+        if (req.goal === 'strength') {
+            score = (ex.score_strength || 2.5) * 1.5;
+        } else if (req.goal === 'fat_loss') {
+            score = (ex.score_hypertrophy || 2.5) * 0.9;
+        } else {
+            score = ex.score_hypertrophy || 2.5;
+        }
+        
+        if (ex.equipment_required?.includes('barbell')) score += 0.5;
         return score;
     }
 
