@@ -395,27 +395,76 @@ export class RoutineGenerator {
 
             const builtDay = this.buildDay(templateDay.name, templateDay.focus, templateDay.slots, candidates, request, volumeTargets.optimal_sets);
 
-            // Attach cardio to specific days based on frequency
-            if (cardioSession && cardioSession.timing === 'after_weights') {
-                // Add cardio after weights on strength training days (alternate days)
-                if (i % 2 === 0 && i < cardioSession.frequency_per_week) {
-                    builtDay.cardio_session = cardioSession;
-                }
-            }
-
             generatedDays.push(builtDay);
         }
 
-        // Add separate cardio days if needed (for low_impact/separate_session)
+        // SMART CARDIO INTEGRATION LOGIC
+        // If we have separate cardio days but no extra days available, we must integrate them.
+        let cardioSessionsToSchedule = cardioSession ? cardioSession.frequency_per_week : 0;
+
+        // 1. Try to add "Separate Sessions" as extra days first
         if (cardioSession && cardioSession.timing === 'separate_session') {
-            const cardioOnlyDays = Math.min(cardioSession.frequency_per_week, 7 - generatedDays.length);
-            for (let i = 0; i < cardioOnlyDays; i++) {
+            const extraDaysAvailable = request.daysAvailable - daysToGenerate;
+            const separateDaysToAdd = Math.min(cardioSessionsToSchedule, extraDaysAvailable);
+
+            for (let i = 0; i < separateDaysToAdd; i++) {
                 generatedDays.push({
                     dayName: `Cardio Day ${i + 1}`,
-                    focus: `${cardioSession.type.toUpperCase()} Cardio`,
+                    focus: `${cardioSession.type.replace('_', ' ').toUpperCase()} Focus`,
                     exercises: [],
                     cardio_session: cardioSession
                 });
+                cardioSessionsToSchedule--;
+            }
+        }
+
+        // 2. Distribute remaining sessions into existing workout days
+        if (cardioSessionsToSchedule > 0 && cardioSession) {
+            // Smart Placement Strategy:
+            // - If High Impact/HIIT: Avoid Leg Days (Squat/Hinge)
+            // - If Low Impact: Can go anywhere
+
+            let daysWithCardio = 0;
+
+            // Iterate existing days to attach cardio
+            for (let i = 0; i < generatedDays.length; i++) {
+                if (daysWithCardio >= cardioSessionsToSchedule) break;
+
+                const day = generatedDays[i];
+                const isLegDay = day.focus.toLowerCase().includes('leg') ||
+                    day.focus.toLowerCase().includes('squat') ||
+                    day.focus.toLowerCase().includes('hinge') ||
+                    day.focus.toLowerCase().includes('lower');
+
+                const isHighImpact = cardioSession.type === 'hiit';
+
+                // Skip Leg Days for High Impact if possible (unless we have no choice)
+                if (isHighImpact && isLegDay && generatedDays.length > cardioSessionsToSchedule) {
+                    continue;
+                }
+
+                // If day doesn't have cardio yet, add it
+                if (!day.cardio_session) {
+                    day.cardio_session = {
+                        ...cardioSession,
+                        timing: 'after_weights' // Force timing change if integrating
+                    };
+                    daysWithCardio++;
+                }
+            }
+
+            // If we still have sessions left (e.g. forced to use leg days), loop again without filters
+            if (daysWithCardio < cardioSessionsToSchedule) {
+                for (let i = 0; i < generatedDays.length; i++) {
+                    if (daysWithCardio >= cardioSessionsToSchedule) break;
+                    if (!generatedDays[i].cardio_session) {
+                        generatedDays[i].cardio_session = {
+                            ...cardioSession,
+                            timing: 'after_weights'
+                        };
+                        daysWithCardio++;
+                    }
+                }
             }
         }
 
