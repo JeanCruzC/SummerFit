@@ -102,7 +102,7 @@ export default function DashboardPage() {
             metrics.tdee,
             metrics.bmr,
             profile.goal,
-            mode,
+            profile.goal_speed || mode,
             activePlan?.estimated_calories_weekly || 0
         );
     }, [profile, metrics, mode, activePlan]);
@@ -302,8 +302,13 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <StatCard icon={<Scale className="h-5 w-5" />} label="Peso actual" value={`${profile.weight_kg} kg`} caption={`IMC: ${metrics.bmi} (${metrics.bmi_category})`} />
                 <StatCard icon={<Target className="h-5 w-5" />} label="Meta" value={`${profile.target_weight_kg} kg`} caption={`Faltan ${Math.abs(profile.weight_kg - profile.target_weight_kg).toFixed(1)} kg`} />
-                <StatCard icon={<Calendar className="h-5 w-5" />} label="Fecha objetivo" value={projection.target_date} caption={`~${projection.weeks} semanas`} />
-                <StatCard icon={<Zap className="h-5 w-5" />} label="TDEE" value={`${metrics.tdee} kcal`} caption={`TMB: ${metrics.bmr} kcal`} />
+                <StatCard icon={<Calendar className="h-5 w-5" />} label="Fecha objetivo" value={projection.target_date} caption={activePlan ? "📅 Meta acelerada con ejercicio" : `~${projection.weeks} semanas`} />
+                <StatCard
+                    icon={<Zap className="h-5 w-5" />}
+                    label="TDEE"
+                    value={`${(projection as any).effectiveTDEE || metrics.tdee} kcal`}
+                    caption={activePlan ? `Base: ${metrics.tdee} + Ejercicio` : `TMB: ${metrics.bmr} kcal`}
+                />
             </div>
 
             {/* Macros Card */}

@@ -121,7 +121,16 @@ export default function WorkoutCalendarPage() {
     };
 
     const getWorkoutForDate = (date: Date | null) => {
-        if (!date) return null;
+        if (!date || !routine) return null;
+
+        // Block workouts before routine was created (Prevents "ghost" workouts in the past)
+        const creationDate = new Date(routine.created_at);
+        creationDate.setHours(0, 0, 0, 0);
+        const cellDate = new Date(date);
+        cellDate.setHours(0, 0, 0, 0);
+
+        if (cellDate < creationDate) return null;
+
         const dayOfWeek = date.getDay();
         return schedule.find(s => s.day_of_week === dayOfWeek);
     };
@@ -140,6 +149,15 @@ export default function WorkoutCalendarPage() {
     };
 
     const handleToggleComplete = async (date: Date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(date);
+        targetDate.setHours(0, 0, 0, 0);
+
+        if (targetDate > today) {
+            return; // Don't allow completing future dates
+        }
+
         const dateStr = date.toISOString().split('T')[0];
         const newCompleted = new Set(completedDates);
         const isCompleting = !newCompleted.has(dateStr);
@@ -271,9 +289,9 @@ export default function WorkoutCalendarPage() {
                                                     <button
                                                         onClick={() => handleToggleComplete(date)}
                                                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${completed
-                                                            ? 'bg-green-500 border-green-500'
-                                                            : 'border-gray-300 hover:border-green-500'
-                                                            }`}
+                                                                ? 'bg-green-500 border-green-500'
+                                                                : 'border-gray-300 hover:border-green-500'
+                                                            } ${new Date(date).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0) ? 'opacity-30 cursor-not-allowed' : ''}`}
                                                     >
                                                         {completed && <Check className="h-4 w-4 text-white" />}
                                                     </button>

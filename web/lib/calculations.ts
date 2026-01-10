@@ -183,7 +183,10 @@ export function calculateProjection(
         risk_msg,
         color,
         warnings,
-    };
+        exercise_boost: Math.round(dailyExerciseBonus),
+        total_deficit: Math.round(dailyDeficit),
+        effectiveTDEE: Math.round(effectiveTDEE)
+    } as any;
 }
 
 /**
@@ -214,9 +217,12 @@ export function calculateProjectionWithExercise(
         effectiveTDEE = Math.max(tdee, calculatedTDEE);
     }
 
-    const targetCalories = calculateTargetCalories(effectiveTDEE, goal, mode);
+    // We calculate the TARGET CALORIES based on the original lifestyle TDEE
+    // so the user's diet stays stable, but the extra expenditure speeds up the date.
+    const targetCalories = calculateTargetCalories(tdee, goal, mode);
 
-    // Deficit calculation
+    // Deficit calculation for PROJECTION
+    // (What the user burns including exercise) - (What the user eats based on lifestyle goal)
     const dailyDeficit = effectiveTDEE - targetCalories;
 
     // Exercise "Bonus" for visualization (difference vs sedentary baseline)
