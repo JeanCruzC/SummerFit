@@ -38,9 +38,19 @@ const BASIC_EXERCISES = [
         type: 'Cardio',
         level: 'Principiante',
         body_part: 'Full Body',
-        equipment_required: ['Peso corporal'], // Special handling for "None"
+        equipment_required: ['Peso corporal'],
         met: 8.0,
-        ranking_score: 100
+        ranking_score: 100,
+        // Smart Tags
+        movement_pattern: 'cardio_steady',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['quadriceps', 'cafs', 'heart'],
+        secondary_muscles: ['hamstrings', 'glutes', 'core'],
+        score_hypertrophy: 2,
+        score_strength: 2,
+        score_difficulty: 1,
+        score_risk: 2
     },
     {
         slug: 'jumping-jacks',
@@ -51,7 +61,16 @@ const BASIC_EXERCISES = [
         body_part: 'Full Body',
         equipment_required: ['Peso corporal'],
         met: 8.0,
-        ranking_score: 95
+        ranking_score: 95,
+        movement_pattern: 'cardio_plyo',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['calves', 'deltoids'],
+        secondary_muscles: ['quadriceps', 'core'],
+        score_hypertrophy: 1,
+        score_strength: 1,
+        score_difficulty: 1,
+        score_risk: 1
     },
     {
         slug: 'burpees',
@@ -62,7 +81,16 @@ const BASIC_EXERCISES = [
         body_part: 'Full Body',
         equipment_required: ['Peso corporal'],
         met: 10.0,
-        ranking_score: 90
+        ranking_score: 90,
+        movement_pattern: 'cardio_plyo',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['pectorals', 'quadriceps', 'triceps'],
+        secondary_muscles: ['core', 'deltoids', 'hamstrings'],
+        score_hypertrophy: 3,
+        score_strength: 3,
+        score_difficulty: 4,
+        score_risk: 3
     },
 
     // --- CHEST / PUSH (Home/Calisthenics) ---
@@ -75,7 +103,16 @@ const BASIC_EXERCISES = [
         body_part: 'Pecho',
         equipment_required: ['Peso corporal'],
         met: 3.8,
-        ranking_score: 98
+        ranking_score: 98,
+        movement_pattern: 'horizontal_press',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['pectorals'],
+        secondary_muscles: ['triceps', 'anterior_deltoid'],
+        score_hypertrophy: 4,
+        score_strength: 4,
+        score_difficulty: 2,
+        score_risk: 2
     },
     {
         slug: 'incline-push-ups',
@@ -86,7 +123,16 @@ const BASIC_EXERCISES = [
         body_part: 'Pecho',
         equipment_required: ['Peso corporal'],
         met: 3.5,
-        ranking_score: 85
+        ranking_score: 85,
+        movement_pattern: 'horizontal_press',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['pectorals'],
+        secondary_muscles: ['triceps', 'anterior_deltoid'],
+        score_hypertrophy: 3,
+        score_strength: 3,
+        score_difficulty: 1,
+        score_risk: 1
     },
 
     // --- BACK / PULL (Home/Calisthenics) ---
@@ -99,7 +145,16 @@ const BASIC_EXERCISES = [
         body_part: 'Espalda',
         equipment_required: ['Barra de dominadas'],
         met: 5.0,
-        ranking_score: 97
+        ranking_score: 97,
+        movement_pattern: 'vertical_pull',
+        mechanic: 'Compound',
+        force: 'Pull',
+        primary_muscles: ['latissimus_dorsi'],
+        secondary_muscles: ['biceps', 'rear_deltoid', 'rhomboids'],
+        score_hypertrophy: 5,
+        score_strength: 5,
+        score_difficulty: 4,
+        score_risk: 2
     },
     {
         slug: 'chin-ups',
@@ -110,7 +165,16 @@ const BASIC_EXERCISES = [
         body_part: 'Bíceps',
         equipment_required: ['Barra de dominadas'],
         met: 5.0,
-        ranking_score: 92
+        ranking_score: 92,
+        movement_pattern: 'vertical_pull',
+        mechanic: 'Compound',
+        force: 'Pull',
+        primary_muscles: ['biceps', 'latissimus_dorsi'],
+        secondary_muscles: ['rear_deltoid', 'forearms'],
+        score_hypertrophy: 5,
+        score_strength: 4,
+        score_difficulty: 3,
+        score_risk: 2
     },
 
     // --- LEGS (Home) ---
@@ -123,7 +187,16 @@ const BASIC_EXERCISES = [
         body_part: 'Piernas',
         equipment_required: ['Peso corporal'],
         met: 5.0,
-        ranking_score: 99
+        ranking_score: 99,
+        movement_pattern: 'squat',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['quadriceps', 'glutes'],
+        secondary_muscles: ['hamstrings', 'adductors', 'core'],
+        score_hypertrophy: 5,
+        score_strength: 4,
+        score_difficulty: 2,
+        score_risk: 2
     },
     {
         slug: 'lunges',
@@ -134,7 +207,16 @@ const BASIC_EXERCISES = [
         body_part: 'Piernas',
         equipment_required: ['Peso corporal'],
         met: 4.0,
-        ranking_score: 94
+        ranking_score: 94,
+        movement_pattern: 'lunge_step',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['quadriceps', 'glutes'],
+        secondary_muscles: ['hamstrings', 'calves', 'core'],
+        score_hypertrophy: 4,
+        score_strength: 3,
+        score_difficulty: 3,
+        score_risk: 2
     },
 
     // --- ABS / CORE ---
@@ -147,7 +229,16 @@ const BASIC_EXERCISES = [
         body_part: 'Abdomen',
         equipment_required: ['Peso corporal'],
         met: 3.0,
-        ranking_score: 96
+        ranking_score: 96,
+        movement_pattern: 'core_stability',
+        mechanic: 'Isolation',
+        force: 'Static',
+        primary_muscles: ['rectus_abdominis', 'transverse_abdominis'],
+        secondary_muscles: ['shoulders', 'glutes'],
+        score_hypertrophy: 3,
+        score_strength: 4,
+        score_difficulty: 2,
+        score_risk: 1
     },
     {
         slug: 'crunches',
@@ -158,7 +249,16 @@ const BASIC_EXERCISES = [
         body_part: 'Abdomen',
         equipment_required: ['Peso corporal'],
         met: 3.0,
-        ranking_score: 93
+        ranking_score: 93,
+        movement_pattern: 'core_flexion',
+        mechanic: 'Isolation',
+        force: 'Pull', // Flexion allows pull
+        primary_muscles: ['rectus_abdominis'],
+        secondary_muscles: ['obliques'],
+        score_hypertrophy: 3,
+        score_strength: 2,
+        score_difficulty: 1,
+        score_risk: 2
     },
 
     // --- GYM BASICS ---
@@ -171,7 +271,16 @@ const BASIC_EXERCISES = [
         body_part: 'Pecho',
         equipment_required: ['Barra', 'Banco plano'],
         met: 5.0,
-        ranking_score: 88
+        ranking_score: 88,
+        movement_pattern: 'horizontal_press',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['pectorals'],
+        secondary_muscles: ['triceps', 'anterior_deltoid'],
+        score_hypertrophy: 5,
+        score_strength: 5,
+        score_difficulty: 3,
+        score_risk: 3
     },
     {
         slug: 'deadlift',
@@ -182,7 +291,16 @@ const BASIC_EXERCISES = [
         body_part: 'Espalda',
         equipment_required: ['Barra'],
         met: 6.0,
-        ranking_score: 89
+        ranking_score: 89,
+        movement_pattern: 'hip_hinge',
+        mechanic: 'Compound',
+        force: 'Pull',
+        primary_muscles: ['glutes', 'hamstrings', 'erector_spinae'],
+        secondary_muscles: ['trapezius', 'forearms', 'quadriceps'],
+        score_hypertrophy: 5,
+        score_strength: 5,
+        score_difficulty: 5,
+        score_risk: 4
     },
     {
         slug: 'dumbbell-curl',
@@ -193,7 +311,16 @@ const BASIC_EXERCISES = [
         body_part: 'Bíceps',
         equipment_required: ['Mancuernas'],
         met: 3.0,
-        ranking_score: 87
+        ranking_score: 87,
+        movement_pattern: 'elbow_flexion_curl',
+        mechanic: 'Isolation',
+        force: 'Pull',
+        primary_muscles: ['biceps'],
+        secondary_muscles: ['forearms'],
+        score_hypertrophy: 4,
+        score_strength: 2,
+        score_difficulty: 1,
+        score_risk: 1
     },
     {
         slug: 'shoulder-press',
@@ -204,7 +331,76 @@ const BASIC_EXERCISES = [
         body_part: 'Hombros',
         equipment_required: ['Mancuernas'], // Or Barbell
         met: 4.0,
-        ranking_score: 86
+        ranking_score: 86,
+        movement_pattern: 'vertical_press',
+        mechanic: 'Compound',
+        force: 'Push',
+        primary_muscles: ['deltoids'],
+        secondary_muscles: ['triceps', 'upper_chest'],
+        score_hypertrophy: 5,
+        score_strength: 5,
+        score_difficulty: 3,
+        score_risk: 3
+    },
+    {
+        slug: 'triceps-extension',
+        title: 'Extensión de Tríceps',
+        description: 'Ejercicio de aislamiento para tríceps.',
+        type: 'Fuerza',
+        level: 'Principiante',
+        body_part: 'Tríceps',
+        equipment_required: ['Mancuernas', 'Polea'],
+        met: 3.0,
+        ranking_score: 85,
+        movement_pattern: 'triceps_extension',
+        mechanic: 'Isolation',
+        force: 'Push',
+        primary_muscles: ['triceps'],
+        secondary_muscles: [],
+        score_hypertrophy: 4,
+        score_strength: 2,
+        score_difficulty: 2,
+        score_risk: 1
+    },
+    {
+        slug: 'lateral-raise',
+        title: 'Elevaciones Laterales',
+        description: 'Aislamiento para la cabeza lateral del hombro.',
+        type: 'Fuerza',
+        level: 'Principiante',
+        body_part: 'Hombros',
+        equipment_required: ['Mancuernas'],
+        met: 3.0,
+        ranking_score: 88,
+        movement_pattern: 'shoulder_raise',
+        mechanic: 'Isolation',
+        force: 'Push', // Abduction
+        primary_muscles: ['lateral_deltoid'],
+        secondary_muscles: ['trapezius'],
+        score_hypertrophy: 5,
+        score_strength: 2,
+        score_difficulty: 2,
+        score_risk: 2
+    },
+    {
+        slug: 'dumbbell-row',
+        title: 'Remo con Mancuerna',
+        description: 'Ejercicio unilateral para dorsales y espalda media.',
+        type: 'Fuerza',
+        level: 'Intermedio',
+        body_part: 'Espalda',
+        equipment_required: ['Mancuernas', 'Banco'],
+        met: 4.0,
+        ranking_score: 91,
+        movement_pattern: 'horizontal_pull',
+        mechanic: 'Compound',
+        force: 'Pull',
+        primary_muscles: ['latissimus_dorsi', 'rhomboids'],
+        secondary_muscles: ['biceps', 'rear_deltoid'],
+        score_hypertrophy: 5,
+        score_strength: 4,
+        score_difficulty: 2,
+        score_risk: 2
     }
 ];
 

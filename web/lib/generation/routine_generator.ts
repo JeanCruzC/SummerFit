@@ -174,7 +174,7 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
                 { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_heavy' },
                 { id: 'press_inc', pattern: 'horizontal_press', role: 'compound_medium' },
                 { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
-                { id: 'fly', pattern: 'chest_fly', role: 'isolation' }
+                { id: 'iso_core', pattern: 'core_flexion', role: 'isolation' }
             ]
         },
         {
@@ -185,7 +185,7 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
                 { id: 'iso_delt', pattern: 'shoulder_raise', role: 'isolation' },
                 { id: 'iso_bi', pattern: 'elbow_flexion_curl', role: 'isolation' },
                 { id: 'iso_tri', pattern: 'triceps_extension', role: 'isolation' },
-                { id: 'iso_rear', pattern: 'scapular_retraction', role: 'isolation' }
+                { id: 'iso_bi2', pattern: 'elbow_flexion_curl', role: 'isolation' }
             ]
         },
         {
@@ -195,12 +195,114 @@ const SPLIT_TEMPLATES: Record<SplitType, any> = {
                 { id: 'squat', pattern: 'squat', role: 'compound_heavy' },
                 { id: 'hinge', pattern: 'hip_hinge', role: 'compound_medium' },
                 { id: 'lunge', pattern: 'lunge_step', role: 'compound_medium' },
-                { id: 'calf', pattern: 'calf_raise', role: 'isolation' }
+                { id: 'core', pattern: 'core_stability', role: 'isolation' }
             ]
         }
     ],
-    'bro_split': [], // To be implemented
-    'ulppl': []
+    'bro_split': [
+        {
+            name: "Chest Day",
+            focus: "Pectoral Annihilation",
+            slots: [
+                { id: 'press_flat', pattern: 'horizontal_press', role: 'compound_heavy' },
+                { id: 'press_inc', pattern: 'horizontal_press', role: 'compound_medium' },
+                { id: 'press_dec', pattern: 'horizontal_press', role: 'compound_medium' },
+                { id: 'iso_tri', pattern: 'triceps_extension', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Back Day",
+            focus: "Lat Spread & Thickness",
+            slots: [
+                { id: 'hinge', pattern: 'hip_hinge', role: 'compound_heavy' },
+                { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_heavy' },
+                { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_medium' },
+                { id: 'pull_horiz2', pattern: 'horizontal_pull', role: 'compound_medium' }
+            ]
+        },
+        {
+            name: "Shoulders Day",
+            focus: "3D Delts",
+            slots: [
+                { id: 'press_vert', pattern: 'vertical_press', role: 'compound_heavy' },
+                { id: 'iso_lateral', pattern: 'shoulder_raise', role: 'isolation' },
+                { id: 'iso_lateral2', pattern: 'shoulder_raise', role: 'isolation' },
+                { id: 'iso_core', pattern: 'core_stability', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Legs Day",
+            focus: "Quad/Ham/Glute Overload",
+            slots: [
+                { id: 'squat', pattern: 'squat', role: 'compound_heavy' },
+                { id: 'hinge', pattern: 'hip_hinge', role: 'compound_heavy' },
+                { id: 'lunge', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'core', pattern: 'core_flexion', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Arms Day",
+            focus: "Biceps & Triceps Pump",
+            slots: [
+                { id: 'iso_bi', pattern: 'elbow_flexion_curl', role: 'isolation' },
+                { id: 'iso_bi2', pattern: 'elbow_flexion_curl', role: 'isolation' },
+                { id: 'iso_tri', pattern: 'triceps_extension', role: 'isolation' },
+                { id: 'iso_tri2', pattern: 'triceps_extension', role: 'isolation' }
+            ]
+        }
+    ], // To be implemented
+    'ulppl': [
+        {
+            name: "Upper A (Strength)",
+            focus: "Heavy Compounds",
+            slots: [
+                { id: 'press_horiz', pattern: 'horizontal_press', role: 'compound_heavy' },
+                { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_heavy' },
+                { id: 'press_vert', pattern: 'vertical_press', role: 'compound_medium' },
+                { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_medium' }
+            ]
+        },
+        {
+            name: "Lower A (Squat Dominant)",
+            focus: "Quad Focus",
+            slots: [
+                { id: 'squat', pattern: 'squat', role: 'compound_heavy' },
+                { id: 'hinge', pattern: 'hip_hinge', role: 'compound_medium' },
+                { id: 'lunge', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'core', pattern: 'core_stability', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Push",
+            focus: "Chest/Shoulders/Tri",
+            slots: [
+                { id: 'press_horiz', pattern: 'horizontal_press', role: 'compound_medium' },
+                { id: 'press_vert', pattern: 'vertical_press', role: 'compound_medium' },
+                { id: 'iso_delt', pattern: 'shoulder_raise', role: 'isolation' },
+                { id: 'iso_tri', pattern: 'triceps_extension', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Pull",
+            focus: "Back/Bi/Rear Delt",
+            slots: [
+                { id: 'pull_vert', pattern: 'vertical_pull', role: 'compound_medium' },
+                { id: 'pull_horiz', pattern: 'horizontal_pull', role: 'compound_medium' },
+                { id: 'iso_bi', pattern: 'elbow_flexion_curl', role: 'isolation' },
+                { id: 'iso_bi2', pattern: 'elbow_flexion_curl', role: 'isolation' }
+            ]
+        },
+        {
+            name: "Legs B (Hinge Dominant)",
+            focus: "Posterior Chain",
+            slots: [
+                { id: 'hinge', pattern: 'hip_hinge', role: 'compound_heavy' },
+                { id: 'squat', pattern: 'squat', role: 'compound_medium' },
+                { id: 'lunge', pattern: 'lunge_step', role: 'compound_medium' },
+                { id: 'core', pattern: 'core_flexion', role: 'isolation' }
+            ]
+        }
+    ]
 };
 
 // ============================================

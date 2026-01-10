@@ -3,19 +3,23 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { RoutineGenerator, type GeneratedRoutine, type RoutineGoal, type RoutineLevel } from "@/lib/generation/routine_generator";
-import type { UserEquipment } from "@/types";
+import type { UserEquipment, UserProfile } from "@/types";
 import { useRouter } from "next/navigation";
+import { ProfileAnalyzer, type ProfileAnalysis } from "@/lib/intelligence/profile_analyzer";
+import { Brain, Target, Sparkles, Settings, CheckCircle } from "lucide-react";
 
 export default function GeneratorPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [equipment, setEquipment] = useState<UserEquipment[]>([]);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [analysis, setAnalysis] = useState<ProfileAnalysis | null>(null);
 
     // Form State
     const [goal, setGoal] = useState<RoutineGoal>('hypertrophy');
     const [level, setLevel] = useState<RoutineLevel>('beginner');
-    const [daysAvailable, setDaysAvailable] = useState<number>(4); // New Smart Input
+    const [daysAvailable, setDaysAvailable] = useState<number>(4);
     const [routine, setRoutine] = useState<GeneratedRoutine | null>(null);
     const [error, setError] = useState("");
 
@@ -26,12 +30,33 @@ export default function GeneratorPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
+            // Load equipment
             const { data: eqData } = await supabase
                 .from('user_equipment')
                 .select('*')
                 .eq('user_id', user.id);
 
+            // Load profile
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
             setEquipment(eqData || []);
+            setProfile(profileData);
+
+            // Analyze profile and pre-select goal
+            if (profileData) {
+                const profileAnalysis = ProfileAnalyzer.analyze(
+                    profileData.weight_kg,
+                    profileData.height_cm,
+                    profileData.target_weight_kg
+                );
+                setAnalysis(profileAnalysis);
+                setGoal(profileAnalysis.recommended_goal);
+            }
+
             setLoading(false);
         }
         loadData();
@@ -44,7 +69,6 @@ export default function GeneratorPage() {
 
         try {
             const generator = new RoutineGenerator();
-            // Artificial delay for "processing" feel
             await new Promise(r => setTimeout(r, 1500));
 
             const result = await generator.generate({
@@ -63,12 +87,41 @@ export default function GeneratorPage() {
         }
     };
 
+    const handleSaveRoutine = async () => {
+        if (!routine) return;
+
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('saved_routines')
+                .insert({
+                    user_id: user.id,
+                    name: routine.name,
+                    is_active: true,
+                    configuration: { goal, level, daysAvailable, equipment: equipment.map(e => e.equipment_type) },
+                    schedule: { days: routine.days.map((d, i) => ({ id: `day_${i}`, ...d })) },
+                    brain_state: { split: routine.split, weeklyVolume: routine.weeklyVolume }
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            router.push(`/dashboard/workout-plan/${data.id}/calendar`);
+        } catch (err) {
+            console.error(err);
+            alert('Error al guardar rutina');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
-                        <span className="text-4xl">🧠</span>
+                        <Brain className="h-9 w-9 text-purple-600" />
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
                             Smart Coach AI
                         </span>
@@ -76,6 +129,30 @@ export default function GeneratorPage() {
                     <p className="text-zinc-600 dark:text-zinc-400">
                         El sistema diseñará la estructura (Split), volumen e intensidad perfectos para tus días disponibles.
                     </p>
+                    {analysis && (
+                        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                            <div className="flex items-start gap-3">
+                                <Target className="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-zinc-900 dark:text-white mb-1">Análisis de Perfil</h3>
+                                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">
+                                        IMC: <span className="font-bold">{analysis.bmi}</span> ({analysis.bmi_category === 'obese' ? 'Obesidad' : analysis.bmi_category === 'overweight' ? 'Sobrepeso' : analysis.bmi_category === 'normal' ? 'Normal' : 'Bajo peso'})
+                                    </p>
+                                    <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                                        <CheckCircle className="inline h-4 w-4 mr-1" /> Objetivo recomendado: <span className="capitalize">{goal.replace('_', ' ')}</span>
+                                    </p>
+                                    <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">
+                                        🏃 Cardio: {analysis.recommended_cardio.frequency}x/semana, {analysis.recommended_cardio.duration}min - {analysis.recommended_cardio.options.join(', ')}
+                                    </p>
+                                    {analysis.warnings.length > 0 && (
+                                        <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                                            {analysis.warnings.map((w, i) => <div key={i}>{w}</div>)}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </header>
 
                 {/* Configuration Panel */}
@@ -91,8 +168,8 @@ export default function GeneratorPage() {
                                         key={g}
                                         onClick={() => setGoal(g)}
                                         className={`p-3 rounded-xl border text-sm font-semibold transition-all capitalize ${goal === g
-                                                ? 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
-                                                : 'border-gray-200 text-gray-500 hover:border-purple-200'
+                                            ? 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
+                                            : 'border-gray-200 text-gray-500 hover:border-purple-200'
                                             }`}
                                     >
                                         {g.replace('_', ' ')}
@@ -124,8 +201,8 @@ export default function GeneratorPage() {
                                         key={d}
                                         onClick={() => setDaysAvailable(d)}
                                         className={`flex-1 p-3 rounded-xl font-bold transition-all ${daysAvailable === d
-                                                ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md transform scale-105'
-                                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800'
+                                            ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md transform scale-105'
+                                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800'
                                             }`}
                                     >
                                         {d}
@@ -151,11 +228,11 @@ export default function GeneratorPage() {
                         >
                             {generating ? (
                                 <>
-                                    <span className="animate-spin">⚙️</span> Analizando Biomecánica...
+                                    <Settings className="h-5 w-5 animate-spin" /> Analizando Biomecánica...
                                 </>
                             ) : (
                                 <>
-                                    ✨ Diseñar Plan Inteligente
+                                    <Sparkles className="h-5 w-5" /> Diseñar Plan Inteligente
                                 </>
                             )}
                         </button>
@@ -171,6 +248,14 @@ export default function GeneratorPage() {
                 {/* Results Section */}
                 {routine && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12">
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleSaveRoutine}
+                                className="px-8 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-500 shadow-lg hover:shadow-green-500/25 transition-all flex items-center gap-2"
+                            >
+                                <CheckCircle className="h-5 w-5" /> Guardar y Usar Esta Rutina
+                            </button>
+                        </div>
                         <div className="bg-zinc-900 dark:bg-black rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
                             <div className="relative z-10">
                                 <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-xs font-bold mb-4 uppercase tracking-widest">

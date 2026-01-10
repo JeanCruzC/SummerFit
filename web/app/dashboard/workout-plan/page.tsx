@@ -197,6 +197,14 @@ export default function WorkoutPlansPage() {
 
                                 <div className="flex gap-3 pt-4 border-t-2 border-zinc-100">
                                     <button
+                                        onClick={() => router.push(`/dashboard/workout-plan/${plan.id}/calendar`)}
+                                        className="flex-1 py-2 rounded-lg bg-purple-600 text-white font-bold hover:bg-purple-500 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Calendar className="h-4 w-4" />
+                                        Calendario
+                                    </button>
+
+                                    <button
                                         onClick={() => router.push(`/dashboard/workout-plan/${plan.id}`)}
                                         className="flex-1 py-2 rounded-lg bg-zinc-900 text-white font-bold hover:bg-zinc-700 transition-all flex items-center justify-center gap-2"
                                     >
