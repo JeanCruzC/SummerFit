@@ -112,12 +112,7 @@ const BASIC_EXERCISES = [
         score_hypertrophy: 4,
         score_strength: 4,
         score_difficulty: 2,
-        score_risk: 2,
-        exercise_media: [{
-            type: 'image',
-            url: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
-            order: 1
-        }]
+        score_risk: 2
     },
     {
         slug: 'incline-push-ups',

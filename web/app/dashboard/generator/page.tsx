@@ -49,10 +49,12 @@ export default function GeneratorPage() {
 
             // Analyze profile and pre-select goal
             if (profileData) {
+                const equipmentTypes = eqData?.map(e => e.equipment_type) || [];
                 const profileAnalysis = ProfileAnalyzer.analyze(
                     profileData.weight_kg,
                     profileData.height_cm,
-                    profileData.target_weight_kg
+                    profileData.target_weight_kg,
+                    equipmentTypes
                 );
                 setAnalysis(profileAnalysis);
                 setGoal(profileAnalysis.recommended_goal);

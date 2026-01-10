@@ -22,11 +22,11 @@ export interface ProfileAnalysis {
 
 export class ProfileAnalyzer {
 
-    static analyze(weight_kg: number, height_cm: number, target_weight_kg: number): ProfileAnalysis {
+    static analyze(weight_kg: number, height_cm: number, target_weight_kg: number, equipment?: string[]): ProfileAnalysis {
         const bmi = weight_kg / Math.pow(height_cm / 100, 2);
         const bmi_category = this.getBMICategory(bmi);
         const recommended_goal = this.getRecommendedGoal(bmi, weight_kg, target_weight_kg);
-        const recommended_cardio = this.getRecommendedCardio(bmi_category, recommended_goal);
+        const recommended_cardio = this.getRecommendedCardio(bmi_category, recommended_goal, equipment);
         const warnings = this.getWarnings(bmi, weight_kg, target_weight_kg);
 
         return {
@@ -61,46 +61,63 @@ export class ProfileAnalyzer {
         return 'strength';
     }
 
-    private static getRecommendedCardio(category: string, goal: SmartGoal) {
+    private static getRecommendedCardio(category: string, goal: SmartGoal, equipment?: string[]) {
+        const hasEquipment = (type: string) => equipment?.some(e => e.toLowerCase().includes(type.toLowerCase())) || false;
+        const hasCinta = hasEquipment('cinta') || hasEquipment('treadmill');
+        const hasPesoCorpOnly = !equipment || equipment.length === 0 || equipment.every(e => e.toLowerCase().includes('corporal') || e.toLowerCase().includes('bodyweight'));
+
         // Obesidad → Bajo impacto obligatorio
         if (category === 'obese') {
+            const options = [];
+            if (hasCinta) options.push('Caminata inclinada en cinta');
+            options.push('Caminata al aire libre', 'Marcha en el lugar');
+
             return {
                 type: 'low_impact' as CardioType,
                 frequency: 5,
                 duration: 40,
-                options: ['Caminata', 'Caminata inclinada en cinta', 'Marcha en el lugar'],
+                options,
                 reasoning: 'Bajo impacto para proteger articulaciones. Alta frecuencia para déficit calórico.'
             };
         }
 
         // Sobrepeso + Fat Loss → Moderado
         if (category === 'overweight' && goal === 'fat_loss') {
+            const options = [];
+            if (hasCinta) options.push('Intervalos en cinta', 'Trotar en cinta');
+            options.push('Trotar al aire libre', 'Caminata rápida');
+
             return {
                 type: 'moderate' as CardioType,
                 frequency: 4,
                 duration: 30,
-                options: ['Trotar ligero', 'Caminata rápida', 'Intervalos en cinta'],
+                options,
                 reasoning: 'Cardio moderado para maximizar pérdida de grasa sin sobrecargar.'
             };
         }
 
         // Fat Loss general → LISS + HIIT
         if (goal === 'fat_loss') {
+            const options = [];
+            if (hasCinta) options.push('HIIT en cinta 20min');
+            options.push('Sprints al aire libre 30seg', 'Burpees', 'Mountain climbers');
+
             return {
                 type: 'moderate' as CardioType,
                 frequency: 3,
                 duration: 25,
-                options: ['HIIT 20min', 'Trotar', 'Sprints 30seg'],
+                options,
                 reasoning: 'Combina LISS y HIIT para eficiencia metabólica.'
             };
         }
 
         // Hypertrophy/Strength → Opcional
+        const options = hasCinta ? ['Caminata ligera en cinta'] : ['Caminata al aire libre'];
         return {
             type: 'optional' as CardioType,
             frequency: 2,
             duration: 20,
-            options: ['Caminata', 'Caminata ligera'],
+            options,
             reasoning: 'Cardio mínimo para salud cardiovascular sin interferir con ganancias.'
         };
     }

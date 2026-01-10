@@ -389,7 +389,7 @@ export class RoutineGenerator {
 
         const { data, error } = await this.supabase
             .from('exercises')
-            .select('*')
+            .select('*, exercise_media(*)')
             .containedBy('equipment_required', availableEq);
 
         if (error) throw error;
