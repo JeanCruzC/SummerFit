@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-    Plus, Trash2, Check,
+    Plus, Trash2, Check, AlertTriangle,
     User, Dumbbell, Bell, Activity, Armchair, Footprints, Anchor,
-    Settings, LayoutList, Spline, Box
+    Settings, LayoutList, Spline, Box, Zap
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { getUserEquipment, addUserEquipment, removeUserEquipment } from "@/lib/supabase/exercises";
+import { getUserEquipment, addUserEquipment, removeUserEquipment, getActiveWorkoutPlan } from "@/lib/supabase/exercises";
+import { AdaptationEngine } from "@/lib/intelligence/adaptation_engine";
 import type { UserEquipment } from "@/types";
 
 // Common equipment types
@@ -33,6 +34,10 @@ export default function EquipmentPage() {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [quantity, setQuantity] = useState(1);
     const [weight, setWeight] = useState("");
+
+    // Phase 7: Equipment change alert state
+    const [showRegenerateAlert, setShowRegenerateAlert] = useState(false);
+    const [removedEquipment, setRemovedEquipment] = useState<string | null>(null);
 
     useEffect(() => {
         loadData();
@@ -101,9 +106,17 @@ export default function EquipmentPage() {
     };
 
     const handleRemove = async (id: number) => {
+        const itemToRemove = equipment.find(e => e.id === id);
+
         try {
             await removeUserEquipment(id);
             setEquipment(equipment.filter(e => e.id !== id));
+
+            // Phase 7: Check if this affects active routine
+            if (itemToRemove && ['Barra', 'Mancuernas', 'Máquinas', 'Polea', 'Banco'].includes(itemToRemove.equipment_type)) {
+                setRemovedEquipment(itemToRemove.equipment_type);
+                setShowRegenerateAlert(true);
+            }
         } catch (error) {
             console.error("Error removing equipment:", error);
             alert("Error al eliminar equipamiento");
@@ -124,154 +137,190 @@ export default function EquipmentPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white mb-1 flex items-center gap-3">
-                        <Dumbbell className="h-7 w-7 text-purple-500" />
-                        Mi Equipamiento
-                    </h1>
-                    <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base">
-                        Configura qué equipamiento tienes disponible
-                    </p>
-                </div>
-
-                {/* Add Equipment Form */}
-                <div className="bg-white dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-4 md:p-6 mb-6 shadow-sm dark:shadow-none">
-                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Agregar Equipamiento</h2>
-
-                    <div className="space-y-6">
-                        {/* Equipment Type */}
-                        <div>
-                            <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-3 block">
-                                Tipo de equipamiento
-                            </label>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                {EQUIPMENT_TYPES.map((type) => (
-                                    <button
-                                        key={type.value}
-                                        type="button"
-                                        onClick={() => toggleSelection(type.value)}
-                                        disabled={equipment.some(e => e.equipment_type === type.value && !type.hasWeight)}
-                                        className={`py-3 px-3 rounded-xl border font-medium transition-all text-left disabled:opacity-40 disabled:cursor-not-allowed ${selectedTypes.includes(type.value)
-                                            ? "border-purple-500 bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-white"
-                                            : "border-gray-200 dark:border-gray-600 text-zinc-600 dark:text-zinc-400 hover:border-purple-400"
-                                            } flex flex-col items-center justify-center`}
-                                    >
-                                        <div className="mb-2 flex justify-center">{type.icon}</div>
-                                        <div className="text-sm">{type.label}</div>
-                                    </button>
-                                ))}
-                            </div>
+        <>
+            {/* Phase 7: Equipment Change Alert Modal */}
+            {showRegenerateAlert && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-md w-full shadow-2xl p-6">
+                        <div className="flex items-center gap-3 text-amber-600 mb-4">
+                            <AlertTriangle className="h-8 w-8" />
+                            <h3 className="text-xl font-black">Equipamiento Eliminado</h3>
                         </div>
+                        <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+                            Eliminaste <strong>{removedEquipment}</strong>, que podría estar incluido en tu rutina actual.
+                            Te recomendamos regenerar tu rutina para optimizar los ejercicios disponibles.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowRegenerateAlert(false)}
+                                className="flex-1 py-3 rounded-xl border-2 border-zinc-200 text-zinc-700 font-bold hover:bg-zinc-50"
+                            >
+                                Mantener Rutina
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowRegenerateAlert(false);
+                                    router.push('/dashboard/generator');
+                                }}
+                                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold flex items-center justify-center gap-2 hover:shadow-lg"
+                            >
+                                <Zap className="h-4 w-4" />
+                                Regenerar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                        {/* Quantity & Weight */}
-                        {selectedTypes.length > 0 && (
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="text-sm font-bold text-zinc-700 mb-2 block">
-                                        Cantidad
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={quantity}
-                                        onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
-                                    />
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
+                <div className="max-w-4xl mx-auto">
+                    {/* Header */}
+                    <div className="mb-6">
+                        <h1 className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white mb-1 flex items-center gap-3">
+                            <Dumbbell className="h-7 w-7 text-purple-500" />
+                            Mi Equipamiento
+                        </h1>
+                        <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base">
+                            Configura qué equipamiento tienes disponible
+                        </p>
+                    </div>
+
+                    {/* Add Equipment Form */}
+                    <div className="bg-white dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-4 md:p-6 mb-6 shadow-sm dark:shadow-none">
+                        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Agregar Equipamiento</h2>
+
+                        <div className="space-y-6">
+                            {/* Equipment Type */}
+                            <div>
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-3 block">
+                                    Tipo de equipamiento
+                                </label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {EQUIPMENT_TYPES.map((type) => (
+                                        <button
+                                            key={type.value}
+                                            type="button"
+                                            onClick={() => toggleSelection(type.value)}
+                                            disabled={equipment.some(e => e.equipment_type === type.value && !type.hasWeight)}
+                                            className={`py-3 px-3 rounded-xl border font-medium transition-all text-left disabled:opacity-40 disabled:cursor-not-allowed ${selectedTypes.includes(type.value)
+                                                ? "border-purple-500 bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-white"
+                                                : "border-gray-200 dark:border-gray-600 text-zinc-600 dark:text-zinc-400 hover:border-purple-400"
+                                                } flex flex-col items-center justify-center`}
+                                        >
+                                            <div className="mb-2 flex justify-center">{type.icon}</div>
+                                            <div className="text-sm">{type.label}</div>
+                                        </button>
+                                    ))}
                                 </div>
+                            </div>
 
-                                {selectedEquipmentInfo?.hasWeight && (
+                            {/* Quantity & Weight */}
+                            {selectedTypes.length > 0 && (
+                                <div className="flex gap-4">
                                     <div className="flex-1">
                                         <label className="text-sm font-bold text-zinc-700 mb-2 block">
-                                            Peso (kg) c/u
+                                            Cantidad
                                         </label>
                                         <input
                                             type="number"
-                                            step="0.5"
-                                            value={weight}
-                                            onChange={(e) => setWeight(e.target.value)}
-                                            placeholder="10"
+                                            min="1"
+                                            value={quantity}
+                                            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                                             className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
                                         />
                                     </div>
-                                )}
+
+                                    {selectedEquipmentInfo?.hasWeight && (
+                                        <div className="flex-1">
+                                            <label className="text-sm font-bold text-zinc-700 mb-2 block">
+                                                Peso (kg) c/u
+                                            </label>
+                                            <input
+                                                type="number"
+                                                step="0.5"
+                                                value={weight}
+                                                onChange={(e) => setWeight(e.target.value)}
+                                                placeholder="10"
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 font-medium focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Add Button */}
+                            <button
+                                onClick={handleAdd}
+                                disabled={selectedTypes.length === 0}
+                                className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-black text-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <Plus className="h-5 w-5" />
+                                {selectedTypes.length > 0 ? `Agregar (${selectedTypes.length})` : "Agregar"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Equipment List */}
+                    <div className="bg-white dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-4 md:p-6 shadow-sm dark:shadow-none">
+                        <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">Tu Equipamiento</h2>
+
+                        {!hasEquipment ? (
+                            <div className="text-center py-12">
+                                <Dumbbell className="h-16 w-16 text-zinc-300 mx-auto mb-4" />
+                                <p className="text-zinc-500 dark:text-zinc-400 font-medium">
+                                    Aún no has agregado equipamiento. <br />
+                                    Agrega lo que tienes disponible arriba.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {equipment.map((item) => {
+                                    const equipType = EQUIPMENT_TYPES.find(e => e.value === item.equipment_type);
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-purple-400 transition-all bg-gray-50/50 dark:bg-transparent"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-3xl">{equipType?.icon || "🏋️"}</div>
+                                                <div>
+                                                    <div className="font-bold text-zinc-900 dark:text-white">
+                                                        {item.equipment_type}
+                                                    </div>
+                                                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                                                        {item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}
+                                                        {item.weight_kg && ` × ${item.weight_kg} kg`}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => item.id && handleRemove(item.id)}
+                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                            >
+                                                <Trash2 className="h-5 w-5" />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 
-                        {/* Add Button */}
-                        <button
-                            onClick={handleAdd}
-                            disabled={selectedTypes.length === 0}
-                            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-black text-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            <Plus className="h-5 w-5" />
-                            {selectedTypes.length > 0 ? `Agregar (${selectedTypes.length})` : "Agregar"}
-                        </button>
+                        {/* Footer Actions */}
+                        {hasEquipment && (
+                            <div className="mt-8 pt-8 border-t-2 border-zinc-100">
+                                <button
+                                    onClick={() => router.push("/dashboard/exercises")}
+                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold text-base hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Check className="h-5 w-5" />
+                                    Ver Ejercicios Disponibles
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
-
-                {/* Equipment List */}
-                <div className="bg-white dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl p-4 md:p-6 shadow-sm dark:shadow-none">
-                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">Tu Equipamiento</h2>
-
-                    {!hasEquipment ? (
-                        <div className="text-center py-12">
-                            <Dumbbell className="h-16 w-16 text-zinc-300 mx-auto mb-4" />
-                            <p className="text-zinc-500 dark:text-zinc-400 font-medium">
-                                Aún no has agregado equipamiento. <br />
-                                Agrega lo que tienes disponible arriba.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {equipment.map((item) => {
-                                const equipType = EQUIPMENT_TYPES.find(e => e.value === item.equipment_type);
-                                return (
-                                    <div
-                                        key={item.id}
-                                        className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-purple-400 transition-all bg-gray-50/50 dark:bg-transparent"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-3xl">{equipType?.icon || "🏋️"}</div>
-                                            <div>
-                                                <div className="font-bold text-zinc-900 dark:text-white">
-                                                    {item.equipment_type}
-                                                </div>
-                                                <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}
-                                                    {item.weight_kg && ` × ${item.weight_kg} kg`}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={() => item.id && handleRemove(item.id)}
-                                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                        >
-                                            <Trash2 className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-
-                    {/* Footer Actions */}
-                    {hasEquipment && (
-                        <div className="mt-8 pt-8 border-t-2 border-zinc-100">
-                            <button
-                                onClick={() => router.push("/dashboard/exercises")}
-                                className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold text-base hover:shadow-xl transition-all flex items-center justify-center gap-2"
-                            >
-                                <Check className="h-5 w-5" />
-                                Ver Ejercicios Disponibles
-                            </button>
-                        </div>
-                    )}
-                </div>
             </div>
-        </div>
+        </>
     );
 }
