@@ -136,28 +136,28 @@ export function getDeficitWarnings(
     // Warning for aggressive deficit
     if (mode === 'acelerado') {
         warnings.push(
-            '⚠️ Déficit agresivo (35%): Prioriza proteína (2g/kg) y entrena fuerza 2+ días/semana para preservar músculo.'
+            'Déficit agresivo (35%): Prioriza proteína (2g/kg) y entrena fuerza 2+ días/semana para preservar músculo.'
         );
     }
 
     // Warning for hitting calorie floor
     if (targetCalories <= floor) {
         warnings.push(
-            `⚠️ Has alcanzado el mínimo seguro (${floor} kcal). Para mayor déficit, consulta un profesional de salud.`
+            `Has alcanzado el mínimo seguro (${floor} kcal). Para mayor déficit, consulta un profesional de salud.`
         );
     }
 
     // Warning for obesity + aggressive deficit (actually okay per PONSSALA)
     if (bmi && bmi >= 30 && mode === 'acelerado') {
         warnings.push(
-            '✅ Personas con obesidad toleran mejor déficits altos. Vigila tu energía y considera suplementar vitaminas.'
+            'Personas con obesidad toleran mejor déficits altos. Vigila tu energía y considera suplementar vitaminas.'
         );
     }
 
     // Warning if no strength training mentioned
     if (hasStrengthTraining === false && mode !== 'conservador') {
         warnings.push(
-            '💪 Añade entrenamiento de fuerza 2+ días/semana para preservar masa muscular durante el déficit.'
+            'Añade entrenamiento de fuerza 2+ días/semana para preservar masa muscular durante el déficit.'
         );
     }
 
@@ -360,7 +360,7 @@ export function calculateProjectionWithExercise(
         risk_level = 'moderate';
         risk_msg = 'Ritmo acelerado - Monitorear';
         color = '#f59e0b';
-        warnings.push('💡 Ritmo acelerado. Asegura buena nutrición.');
+        warnings.push('Ritmo acelerado. Asegura buena nutrición.');
     }
 
     if (dailyExerciseBonus > 0) {

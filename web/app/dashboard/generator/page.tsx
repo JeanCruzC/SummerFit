@@ -6,7 +6,7 @@ import { RoutineGenerator, type GeneratedRoutine, type RoutineGoal, type Routine
 import type { UserEquipment, UserProfile } from "@/types";
 import { useRouter } from "next/navigation";
 import { ProfileAnalyzer, type ProfileAnalysis } from "@/lib/intelligence/profile_analyzer";
-import { Brain, Target, Sparkles, Settings, CheckCircle, Activity } from "lucide-react";
+import { Brain, Target, Sparkles, Settings, CheckCircle, Activity, Clock, Gauge, Timer, Repeat, Info } from "lucide-react";
 
 export default function GeneratorPage() {
     const router = useRouter();
@@ -451,6 +451,44 @@ export default function GeneratorPage() {
                             </div>
                         )}
 
+                        {/* Barra de información - Métricas de ejercicio */}
+                        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 mb-4 border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Info className="h-4 w-4 text-purple-600" />
+                                <span className="font-semibold text-purple-800 dark:text-purple-200 text-sm">¿Qué significan estas métricas?</span>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                <div className="flex items-start gap-2">
+                                    <Repeat className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <strong className="text-zinc-800 dark:text-zinc-200">S×R</strong>
+                                        <p className="text-zinc-500">Series × Repeticiones</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <Clock className="h-4 w-4 text-gray-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <strong className="text-zinc-800 dark:text-zinc-200">Descanso</strong>
+                                        <p className="text-zinc-500">Tiempo entre series</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <Gauge className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <strong className="text-zinc-800 dark:text-zinc-200">RIR</strong>
+                                        <p className="text-zinc-500">Reps en Reserva (0-2 = máximo esfuerzo)</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <Timer className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <strong className="text-zinc-800 dark:text-zinc-200">Tempo</strong>
+                                        <p className="text-zinc-500">Cadencia (ej: 2-0-1-0 = 2s bajar, 0 pausa, 1s subir)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {routine.days.map((day, idx) => (
                                 <div key={idx} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col overflow-hidden hover:border-purple-200 transition-colors shadow-lg shadow-gray-200/50 dark:shadow-none">
@@ -504,17 +542,18 @@ export default function GeneratorPage() {
                                                         {/* Smart Prescription */}
                                                         <div className="mt-2 grid grid-cols-2 gap-1 text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
                                                             <div className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                                <Repeat className="h-3 w-3 text-purple-600" />
                                                                 <span className="font-bold text-purple-600">S×R</span> {exItem.sets} x {exItem.reps}
                                                             </div>
                                                             <div className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                                <span>⏱</span> {exItem.rest}
+                                                                <Clock className="h-3 w-3 text-gray-500" /> {exItem.rest}
                                                             </div>
                                                             <div className="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded flex items-center gap-1" title="RIR = Reps en Reserva (0-2 óptimo para hipertrofia)">
-                                                                <span>⚡</span> RIR {exItem.rir}
+                                                                <Gauge className="h-3 w-3" /> RIR {exItem.rir}
                                                             </div>
                                                             {exItem.tempo && (
                                                                 <div className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded flex items-center gap-1" title="Tempo = Cadencia del movimiento">
-                                                                    <span>↔️</span> {exItem.tempo}
+                                                                    <Timer className="h-3 w-3" /> {exItem.tempo}
                                                                 </div>
                                                             )}
                                                         </div>

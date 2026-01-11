@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap, Dumbbell } from "lucide-react";
+import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap, Dumbbell, AlertTriangle, CheckCircle, Lightbulb, Brain } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, StatCard, ProgressBar, Segmented, Chip, Alert, RingProgress, Button } from "@/components/ui";
@@ -224,10 +224,10 @@ export default function DashboardPage() {
             {deficitWarnings.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {deficitWarnings.map((warning, i) => {
-                        // Determine color based on emoji/type
-                        const isPositive = warning.startsWith('✅');
-                        const isStrength = warning.startsWith('💪');
-                        const isWarning = warning.startsWith('⚠️');
+                        // Determine color based on keywords (since emojis were removed)
+                        const isPositive = warning.includes('toleran mejor');
+                        const isStrength = warning.includes('fuerza');
+                        const isWarning = warning.includes('agresivo') || warning.includes('mínimo seguro');
 
                         const bgColor = isPositive
                             ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
@@ -244,8 +244,13 @@ export default function DashboardPage() {
                         return (
                             <div
                                 key={i}
-                                className={`p-4 rounded-2xl border ${bgColor} ${textColor}`}
+                                className={`p-4 rounded-2xl border ${bgColor} ${textColor} flex items-start gap-3 transition-all hover:scale-[1.01]`}
                             >
+                                <div className="flex-shrink-0 mt-0.5">
+                                    {isPositive && <CheckCircle className="h-5 w-5" />}
+                                    {isStrength && <Dumbbell className="h-5 w-5" />}
+                                    {isWarning && <AlertTriangle className="h-5 w-5" />}
+                                </div>
                                 <p className="text-sm font-medium leading-relaxed">
                                     {warning}
                                 </p>

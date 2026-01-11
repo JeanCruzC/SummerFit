@@ -47,10 +47,24 @@ export default function WorkoutCalendarPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        // 1. Resolve source routine ID
+        let targetRoutineId = planId;
+
+        // Try to find if this is a workout plan linked to a saved routine
+        const { data: wp } = await supabase
+            .from('workout_plans')
+            .select('source_routine_id')
+            .eq('id', planId)
+            .single();
+
+        if (wp?.source_routine_id) {
+            targetRoutineId = wp.source_routine_id;
+        }
+
         const { data: routineData } = await supabase
             .from('saved_routines')
             .select('*')
-            .eq('id', planId)
+            .eq('id', targetRoutineId)
             .single();
 
         if (routineData) {
@@ -59,7 +73,7 @@ export default function WorkoutCalendarPage() {
             const { data: scheduleData } = await supabase
                 .from('user_schedule')
                 .select('*')
-                .eq('saved_routine_id', planId)
+                .eq('saved_routine_id', targetRoutineId)
                 .order('day_of_week');
 
             let scheduledDays: any[] = [];
