@@ -97,13 +97,14 @@ export default function DashboardPage() {
 
     const projection = useMemo(() => {
         if (!profile || !metrics) return null;
+        // Always use 'mode' from UI state (not profile.goal_speed) so it responds to toggle
         return calculateProjectionWithExercise(
             profile.weight_kg,
             profile.target_weight_kg,
             metrics.tdee,
             metrics.bmr,
             profile.goal,
-            profile.goal_speed || mode,
+            mode, // Use UI state directly
             activePlan?.estimated_calories_weekly || 0
         );
     }, [profile, metrics, mode, activePlan]);
@@ -257,16 +258,16 @@ export default function DashboardPage() {
             {/* Adaptation Alerts - Real-time weight progress feedback */}
             {adaptationAlerts && adaptationAlerts.triggers.length > 0 && (
                 <div className={`p-4 rounded-2xl border ${adaptationAlerts.priority === 'high'
-                        ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-                        : 'bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800'
+                    ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+                    : 'bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800'
                     }`}>
                     <div className={`font-semibold mb-2 ${adaptationAlerts.priority === 'high'
-                            ? 'text-orange-800 dark:text-orange-200'
-                            : 'text-sky-800 dark:text-sky-200'
+                        ? 'text-orange-800 dark:text-orange-200'
+                        : 'text-sky-800 dark:text-sky-200'
                         }`}>🧠 Coach Inteligente</div>
                     <p className={`text-sm mb-2 ${adaptationAlerts.priority === 'high'
-                            ? 'text-orange-700 dark:text-orange-300'
-                            : 'text-sky-700 dark:text-sky-300'
+                        ? 'text-orange-700 dark:text-orange-300'
+                        : 'text-sky-700 dark:text-sky-300'
                         }`}>{adaptationAlerts.summary}</p>
                     <ul className="list-disc list-inside text-sm space-y-1">
                         {adaptationAlerts.triggers.map((t, i) => (
