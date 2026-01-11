@@ -98,7 +98,7 @@ export default function DashboardPage() {
     const projection = useMemo(() => {
         if (!profile || !metrics) return null;
         // Always use 'mode' from UI state (not profile.goal_speed) so it responds to toggle
-        return calculateProjectionWithExercise(
+        const result = calculateProjectionWithExercise(
             profile.weight_kg,
             profile.target_weight_kg,
             metrics.tdee,
@@ -107,6 +107,18 @@ export default function DashboardPage() {
             mode, // Use UI state directly
             activePlan?.estimated_calories_weekly || 0
         );
+
+        // Debug logging - remove after verification
+        console.log('🔄 Projection recalculated:', {
+            mode,
+            tdee: metrics.tdee,
+            daily_calories: result.daily_calories,
+            weekly_rate: result.weekly_rate,
+            weeks: result.weeks,
+            target_date: result.target_date
+        });
+
+        return result;
     }, [profile, metrics, mode, activePlan]);
 
     const macros = useMemo(() => {
@@ -379,7 +391,10 @@ export default function DashboardPage() {
                                 { label: "Acelerado", value: "acelerado" },
                             ]}
                             value={mode}
-                            onChange={(v) => setMode(v as any)}
+                            onChange={(v) => {
+                                console.log('🔄 Mode changed to:', v);
+                                setMode(v as any);
+                            }}
                         />
                         <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
                             <div className="flex justify-between items-center">
