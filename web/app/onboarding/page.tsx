@@ -6,11 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, Check, TrendingDown, TrendingUp, Minus, Target, Flame, Scale, Ruler } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-// Fitia-style colors
+// App colors - Purple theme to match the rest of the app
 const COLORS = {
-  background: "#FFFDF5",      // Cream
-  primary: "#FFBE16",          // Yellow
-  primaryLight: "#FFF5D6",     // Light yellow
+  background: "#F9FAFB",      // Light gray (matches app)
+  primary: "#8B5CF6",          // Purple
+  primaryLight: "#EDE9FE",     // Light purple
   text: "#1A1A1A",             // Black
   textSecondary: "#6B7280",    // Gray
   success: "#22C55E",          // Green
@@ -118,14 +118,14 @@ export default function OnboardingPage() {
 
   return (
     <div style={{ backgroundColor: COLORS.background }} className="min-h-screen">
-      {/* Progress Bar - Fitia Style */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-amber-100 shadow-sm">
+      {/* Progress Bar - Purple Theme */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-purple-100 shadow-sm">
         <div className="container mx-auto px-6 py-4 max-w-lg">
           <div className="flex gap-2">
             {[...Array(TOTAL_STEPS)].map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i < currentStep ? "bg-amber-400" : "bg-zinc-200"
+                className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i < currentStep ? "bg-purple-500" : "bg-zinc-200"
                   }`}
               />
             ))}
@@ -143,7 +143,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-3xl p-8 shadow-xl border border-amber-100"
+              className="bg-white rounded-3xl p-8 shadow-xl border border-purple-100"
             >
               {currentStep === 1 && <GoalStep formData={formData} onChange={handleChange} />}
               {currentStep === 2 && <PersonalStep formData={formData} onChange={handleChange} />}
@@ -167,8 +167,9 @@ export default function OnboardingPage() {
                   <button
                     onClick={handleNext}
                     disabled={!isStepValid()}
-                    style={{ backgroundColor: isStepValid() ? COLORS.primary : "#E5E7EB" }}
-                    className="flex-1 py-4 rounded-2xl text-black font-bold hover:shadow-lg transition-all disabled:cursor-not-allowed"
+                    className={`flex-1 py-4 rounded-2xl font-bold transition-all ${isStepValid()
+                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
                   >
                     Continuar
                     <ChevronRight className="inline h-5 w-5 ml-1" />
@@ -177,11 +178,10 @@ export default function OnboardingPage() {
                   <button
                     onClick={handleComplete}
                     disabled={!isStepValid() || isLoading}
-                    style={{ backgroundColor: COLORS.primary }}
-                    className="flex-1 py-4 rounded-2xl text-black font-black text-lg hover:shadow-lg transition-all disabled:opacity-50"
+                    className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-black text-lg hover:shadow-lg transition-all disabled:opacity-50"
                   >
                     {isLoading ? (
-                      <div className="h-6 w-6 border-3 border-black/30 border-t-black rounded-full animate-spin mx-auto" />
+                      <div className="h-6 w-6 border-3 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
                     ) : (
                       <>
                         <Check className="inline h-5 w-5 mr-2" />
@@ -225,8 +225,8 @@ function GoalStep({ formData, onChange }: any) {
             key={goal.value}
             onClick={() => onChange("goal", goal.value)}
             className={`w-full p-4 rounded-2xl border-2 text-left transition-all flex items-center gap-4 ${formData.goal === goal.value
-                ? "border-amber-400 bg-amber-50"
-                : "border-zinc-200 hover:border-amber-300"
+              ? "border-purple-400 bg-purple-50"
+              : "border-zinc-200 hover:border-purple-300"
               }`}
           >
             <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${goal.color}20` }}>
@@ -237,7 +237,7 @@ function GoalStep({ formData, onChange }: any) {
               <div className="text-sm text-zinc-500">{goal.desc}</div>
             </div>
             {formData.goal === goal.value && (
-              <Check className="ml-auto h-5 w-5 text-amber-500" />
+              <Check className="ml-auto h-5 w-5 text-purple-500" />
             )}
           </button>
         ))}
@@ -268,8 +268,8 @@ function PersonalStep({ formData, onChange }: any) {
                 key={g}
                 onClick={() => onChange("gender", g)}
                 className={`py-4 rounded-2xl border-2 font-bold transition-all ${formData.gender === g
-                    ? "border-amber-400 bg-amber-50 text-zinc-900"
-                    : "border-zinc-200 text-zinc-600 hover:border-amber-300"
+                  ? "border-purple-400 bg-purple-50 text-zinc-900"
+                  : "border-zinc-200 text-zinc-600 hover:border-purple-300"
                   }`}
               >
                 {g}
@@ -285,7 +285,7 @@ function PersonalStep({ formData, onChange }: any) {
             value={formData.age}
             onChange={(e) => onChange("age", e.target.value)}
             placeholder="25"
-            className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition text-lg font-medium"
+            className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition text-lg font-medium"
           />
         </div>
       </div>
@@ -315,7 +315,7 @@ function MeasurementsStep({ formData, onChange }: any) {
               value={formData.height}
               onChange={(e) => onChange("height", e.target.value)}
               placeholder="175"
-              className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition text-lg font-medium"
+              className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition text-lg font-medium"
             />
           </div>
           <div>
@@ -325,7 +325,7 @@ function MeasurementsStep({ formData, onChange }: any) {
               value={formData.weight}
               onChange={(e) => onChange("weight", e.target.value)}
               placeholder="78"
-              className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition text-lg font-medium"
+              className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition text-lg font-medium"
             />
           </div>
         </div>
@@ -337,7 +337,7 @@ function MeasurementsStep({ formData, onChange }: any) {
             value={formData.target_weight}
             onChange={(e) => onChange("target_weight", e.target.value)}
             placeholder="72"
-            className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition text-lg font-medium"
+            className="w-full px-4 py-4 rounded-2xl border-2 border-zinc-200 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition text-lg font-medium"
           />
         </div>
       </div>
@@ -372,8 +372,8 @@ function ActivityStep({ formData, onChange }: any) {
             key={level.value}
             onClick={() => onChange("activity_level", level.value)}
             className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${formData.activity_level === level.value
-                ? "border-amber-400 bg-amber-50"
-                : "border-zinc-200 hover:border-amber-300"
+              ? "border-purple-400 bg-purple-50"
+              : "border-zinc-200 hover:border-purple-300"
               }`}
           >
             <div className="font-bold text-zinc-900">{level.label}</div>
@@ -428,15 +428,15 @@ function SpeedStep({ formData, onChange }: any) {
             key={speed.value}
             onClick={() => onChange("goal_speed", speed.value)}
             className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${formData.goal_speed === speed.value
-                ? "border-amber-400 bg-amber-50"
-                : "border-zinc-200 hover:border-amber-300"
+              ? "border-purple-400 bg-purple-50"
+              : "border-zinc-200 hover:border-purple-300"
               }`}
           >
             <div className="font-bold text-zinc-900 mb-1">{speed.label}</div>
             <div className="text-sm text-zinc-500 mb-2">{speed.desc}</div>
 
             {formData.goal_speed === speed.value && (
-              <div className="space-y-1 mt-3 pt-3 border-t border-amber-200">
+              <div className="space-y-1 mt-3 pt-3 border-t border-purple-200">
                 {speed.pros.map((p, i) => (
                   <div key={i} className="text-xs text-green-600 flex items-center gap-1">
                     <Check className="h-3 w-3" /> {p}

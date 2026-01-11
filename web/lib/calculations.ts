@@ -71,10 +71,10 @@ export function calculateTDEE(bmr: number, activityLevel: string): number {
 
 /**
  * Calculate target calories based on goal
- * SCIENTIFIC UPDATE: Uses % of TDEE for scalable deficits (ACSM 2018)
- * - Conservador: 10% deficit (~0.25-0.4 kg/week)
- * - Moderado: 20% deficit (~0.5-0.7 kg/week)  
- * - Acelerado: 25% deficit (~0.75-1.0 kg/week)
+ * DEFICIT LEVELS (updated to match competitive apps like Fitia):
+ * - Conservador: 15% deficit (~0.3-0.5 kg/week)
+ * - Moderado: 25% deficit (~0.5-0.75 kg/week)  
+ * - Acelerado: 35% deficit (~0.8-1.2 kg/week) ⚠️ May impact muscle preservation
  */
 export function calculateTargetCalories(
     tdee: number,
@@ -82,10 +82,12 @@ export function calculateTargetCalories(
     mode: 'conservador' | 'moderado' | 'acelerado' = 'moderado'
 ): number {
     // Percentage-based deficits (scalable with body weight)
+    // Updated to match Fitia/competitive apps for user expectation
+    // Note: Higher deficits (>25%) may impact muscle preservation
     const deficitPct = {
-        conservador: 0.10, // 10% - Health-focused
-        moderado: 0.20,    // 20% - Standard
-        acelerado: 0.25,   // 25% - Aggressive (max safe)
+        conservador: 0.15, // 15% - Health-focused (~0.3-0.5 kg/week)
+        moderado: 0.25,    // 25% - Standard (~0.5-0.75 kg/week)
+        acelerado: 0.35,   // 35% - Aggressive (Fitia-level, ~0.8-1.2 kg/week)
     };
 
     // Percentage-based surplus for muscle gain
