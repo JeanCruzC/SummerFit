@@ -62,11 +62,26 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                 .single();
             if (profile) setUserWeight(profile.weight_kg);
 
-            // 3. Get Plan Exercises - Try BOTH sources
-            // First try the workout_plan_exercises table
-            let planExercises = await getWorkoutPlanExercises(planId);
+            // 3. Get Plan Exercises - Need to find the correct workout_plan_id first
+            // The URL uses saved_routines.id, but exercises are stored under workout_plans.id
+            // We need to find workout_plans where source_routine_id = planId
 
-            // If empty, try loading from saved_routines.schedule (AI-generated routines)
+            let planExercises: any[] = [];
+
+            // First, try to find the workout_plan that links to this saved_routine
+            const { data: linkedWorkoutPlan } = await supabase
+                .from('workout_plans')
+                .select('id')
+                .eq('source_routine_id', planId)
+                .single();
+
+            if (linkedWorkoutPlan?.id) {
+                // Load from workout_plan_exercises using the correct ID
+                planExercises = await getWorkoutPlanExercises(linkedWorkoutPlan.id);
+                console.log('Loaded from workout_plan_exercises:', planExercises.length);
+            }
+
+            // If still empty, try loading directly from saved_routines.schedule
             if (planExercises.length === 0) {
                 const { data: savedRoutine } = await supabase
                     .from('saved_routines')
@@ -74,7 +89,7 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                     .eq('id', planId)
                     .single();
 
-                console.log('Saved routine schedule:', savedRoutine?.schedule); // Debug
+                console.log('Saved routine schedule:', JSON.stringify(savedRoutine?.schedule?.days?.[0], null, 2)); // Debug
 
                 if (savedRoutine?.schedule?.days) {
                     // Transform saved_routines format to WorkoutPlanExercise format
@@ -82,33 +97,35 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                     let tempId = -1;
                     planExercises = savedRoutine.schedule.days.flatMap((day: any, dayIndex: number) => {
                         const exercises = day.exercises || [];
+                        console.log(`Day ${dayIndex}: ${exercises.length} exercises`); // Debug
                         return exercises.map((item: any, exIndex: number) => {
                             // The structure is { exercise: {...}, sets, reps, rest }
                             const ex = item.exercise || item; // Fallback if flat structure
+                            console.log(`Exercise ${exIndex}:`, ex?.title || ex?.name || 'NO TITLE'); // Debug
                             return {
                                 id: tempId--,
                                 workout_plan_id: planId,
                                 exercise_id: ex.id || exIndex,
                                 day_of_week: dayIndex + 1,
                                 order_in_day: exIndex + 1,
-                                sets: item.sets || 3,
-                                reps: item.reps || 10,
+                                sets: typeof item.sets === 'number' ? item.sets : 3,
+                                reps: typeof item.reps === 'number' ? item.reps : (typeof item.reps === 'string' ? parseInt(item.reps) : 10),
                                 rir: item.rir ?? 2,
                                 rest_seconds: typeof item.rest === 'string' ? parseInt(item.rest) : (item.rest || 60),
                                 duration_minutes: item.duration_minutes || 5,
                                 isFromSavedRoutine: true,
                                 exercise: {
                                     id: ex.id || exIndex,
-                                    title: ex.title || ex.name || 'Ejercicio',
-                                    body_part: ex.body_part || ex.bodyPart || ex.muscle || '',
+                                    title: ex.title || ex.name || 'Ejercicio Sin Nombre',
+                                    body_part: ex.body_part || ex.bodyPart || '',
                                     met: ex.met || 5,
-                                    equipment: ex.equipment || '',
-                                    image_url: ex.image_url || ex.gifUrl || ''
+                                    equipment: ex.equipment || ex.equipment_required?.join(', ') || '',
+                                    image_url: ex.image_url || ''
                                 }
                             };
                         });
                     });
-                    console.log('Transformed exercises:', planExercises.length); // Debug
+                    console.log('Transformed from saved_routines:', planExercises.length);
                 }
             }
             setExercises(planExercises);

@@ -504,17 +504,17 @@ export default function GeneratorPage() {
                                                         {/* Smart Prescription */}
                                                         <div className="mt-2 grid grid-cols-2 gap-1 text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
                                                             <div className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                                <span>📊</span> {exItem.sets} x {exItem.reps}
+                                                                <span className="font-bold text-purple-600">S×R</span> {exItem.sets} x {exItem.reps}
                                                             </div>
                                                             <div className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                                <span>⏱️</span> {exItem.rest}
+                                                                <span>⏱</span> {exItem.rest}
                                                             </div>
-                                                            <div className="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                                <span>🔥</span> {exItem.rir}
+                                                            <div className="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded flex items-center gap-1" title="RIR = Reps en Reserva (0-2 óptimo para hipertrofia)">
+                                                                <span>⚡</span> RIR {exItem.rir}
                                                             </div>
                                                             {exItem.tempo && (
-                                                                <div className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                                    <span>🐢</span> {exItem.tempo}
+                                                                <div className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded flex items-center gap-1" title="Tempo = Cadencia del movimiento">
+                                                                    <span>↔️</span> {exItem.tempo}
                                                                 </div>
                                                             )}
                                                         </div>
