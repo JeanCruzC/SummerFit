@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap, Dumbbell, AlertTriangle, CheckCircle, Lightbulb, Brain } from "lucide-react";
+import { Calendar, Flame, Scale, Target, TrendingUp, UtensilsCrossed, Zap, Dumbbell, AlertTriangle, CheckCircle, Lightbulb, Brain, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, StatCard, ProgressBar, Segmented, Chip, Alert, RingProgress, Button } from "@/components/ui";
@@ -220,81 +220,59 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Scientific Deficit Tips - Friendly styling */}
-            {deficitWarnings.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {deficitWarnings.map((warning, i) => {
-                        // Determine color based on keywords (since emojis were removed)
-                        const isPositive = warning.includes('toleran mejor');
-                        const isStrength = warning.includes('fuerza');
-                        const isWarning = warning.includes('agresivo') || warning.includes('mínimo seguro');
+            {/* Unified Smart Coach Insights */}
+            {(deficitWarnings.length > 0 || projection.warnings.length > 0 || (adaptationAlerts && adaptationAlerts.triggers.length > 0)) && (
+                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-6">
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/20 dark:to-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-purple-600" />
+                        <h3 className="font-bold text-gray-900 dark:text-white">Smart Coach Insights</h3>
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                            {deficitWarnings.length + projection.warnings.length + (adaptationAlerts?.triggers.length || 0)} tips
+                        </span>
+                    </div>
 
-                        const bgColor = isPositive
-                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-                            : isStrength
-                                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                                : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
+                    <div className="p-2 grid grid-cols-1 gap-1">
+                        {/* 1. Deficit Warnings */}
+                        {deficitWarnings.map((warning, i) => {
+                            const isPositive = warning.includes('toleran mejor');
+                            const isStrength = warning.includes('fuerza');
+                            const isWarning = warning.includes('agresivo') || warning.includes('mínimo seguro');
 
-                        const textColor = isPositive
-                            ? 'text-emerald-800 dark:text-emerald-200'
-                            : isStrength
-                                ? 'text-blue-800 dark:text-blue-200'
-                                : 'text-amber-800 dark:text-amber-200';
-
-                        return (
-                            <div
-                                key={i}
-                                className={`p-4 rounded-2xl border ${bgColor} ${textColor} flex items-start gap-3 transition-all hover:scale-[1.01]`}
-                            >
-                                <div className="flex-shrink-0 mt-0.5">
-                                    {isPositive && <CheckCircle className="h-5 w-5" />}
-                                    {isStrength && <Dumbbell className="h-5 w-5" />}
-                                    {isWarning && <AlertTriangle className="h-5 w-5" />}
+                            return (
+                                <div key={`def-${i}`} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors flex gap-3 items-start">
+                                    <div className="flex-shrink-0 mt-0.5">
+                                        {isPositive && <CheckCircle className="h-5 w-5 text-emerald-500" />}
+                                        {isStrength && <Dumbbell className="h-5 w-5 text-blue-500" />}
+                                        {isWarning && <AlertTriangle className="h-5 w-5 text-amber-500" />}
+                                        {!isPositive && !isStrength && !isWarning && <Lightbulb className="h-5 w-5 text-purple-500" />}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                        {warning}
+                                    </div>
                                 </div>
-                                <p className="text-sm font-medium leading-relaxed">
-                                    {warning}
-                                </p>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+                            );
+                        })}
 
-            {/* Projection Warnings */}
-            {projection.warnings.length > 0 && (
-                <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-                    <div className="font-semibold text-purple-800 dark:text-purple-200 mb-2">💡 Recomendaciones</div>
-                    <div className="space-y-1">
+                        {/* 2. Projection Recommendations */}
                         {projection.warnings.map((w, i) => (
-                            <p key={i} className="text-sm text-purple-700 dark:text-purple-300">{w}</p>
+                            <div key={`proj-${i}`} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors flex gap-3 items-start">
+                                <TrendingUp className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                    {w}
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* 3. Adaptation Alerts */}
+                        {adaptationAlerts && adaptationAlerts.triggers.map((t, i) => (
+                            <div key={`adapt-${i}`} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors flex gap-3 items-start">
+                                <Brain className="h-5 w-5 text-sky-500 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                    {t.recommendation}
+                                </div>
+                            </div>
                         ))}
                     </div>
-                </div>
-            )}
-
-            {/* Adaptation Alerts - Real-time weight progress feedback */}
-            {adaptationAlerts && adaptationAlerts.triggers.length > 0 && (
-                <div className={`p-4 rounded-2xl border ${adaptationAlerts.priority === 'high'
-                    ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-                    : 'bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800'
-                    }`}>
-                    <div className={`font-semibold mb-2 ${adaptationAlerts.priority === 'high'
-                        ? 'text-orange-800 dark:text-orange-200'
-                        : 'text-sky-800 dark:text-sky-200'
-                        }`}>🧠 Coach Inteligente</div>
-                    <p className={`text-sm mb-2 ${adaptationAlerts.priority === 'high'
-                        ? 'text-orange-700 dark:text-orange-300'
-                        : 'text-sky-700 dark:text-sky-300'
-                        }`}>{adaptationAlerts.summary}</p>
-                    <ul className="list-disc list-inside text-sm space-y-1">
-                        {adaptationAlerts.triggers.map((t, i) => (
-                            <li key={i} className={
-                                adaptationAlerts.priority === 'high'
-                                    ? 'text-orange-700 dark:text-orange-300'
-                                    : 'text-sky-700 dark:text-sky-300'
-                            }>{t.recommendation}</li>
-                        ))}
-                    </ul>
                 </div>
             )}
 
