@@ -364,7 +364,7 @@ export function calculateProjectionWithExercise(
     }
 
     if (dailyExerciseBonus > 0) {
-        warnings.push(`💪 Ejercicio añade ~${Math.round(dailyExerciseBonus)} kcal/día de gasto.`);
+        warnings.push(`Ejercicio añade ~${Math.round(dailyExerciseBonus)} kcal/día de gasto.`);
     }
 
     return {
