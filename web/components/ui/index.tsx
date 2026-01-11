@@ -174,6 +174,7 @@ export function Segmented({ options, value, onChange }: SegmentedProps) {
             {options.map(opt => (
                 <button
                     key={opt.value}
+                    type="button"
                     onClick={() => onChange(opt.value)}
                     className={cn(
                         "h-9 px-3 rounded-lg text-sm font-medium transition",

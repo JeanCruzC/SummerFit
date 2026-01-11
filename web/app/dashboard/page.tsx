@@ -13,7 +13,7 @@ import { getActiveWorkoutPlan } from "@/lib/supabase/exercises";
 import { calculateHealthMetrics, calculateMacros, calculateProjectionWithExercise, getDeficitWarnings, calculateBMI } from "@/lib/calculations";
 import { getSupplementRecommendations } from "@/lib/supplements";
 import { AdaptationEngine } from "@/lib/intelligence/adaptation_engine";
-import { UserProfile, WorkoutPlan } from "@/types";
+import { UserProfile, WorkoutPlan, DailyLog } from "@/types";
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -25,7 +25,7 @@ export default function DashboardPage() {
     const [range, setRange] = useState("hoy");
     const [todayMeals, setTodayMeals] = useState<any[]>([]);
     const [weightHistory, setWeightHistory] = useState<{ recorded_at: string; weight_kg: number }[]>([]);
-    const [weekLogs, setWeekLogs] = useState<any[]>([]);
+    const [historyLogs, setHistoryLogs] = useState<DailyLog[]>([]);
     const [activePlan, setActivePlan] = useState<WorkoutPlan | null>(null);
 
     useEffect(() => {
@@ -43,11 +43,11 @@ export default function DashboardPage() {
 
                 const [profileData, weights, meals, logs, plan] = await Promise.all([
                     getProfile(session.user.id),
-                    getWeightHistory(session.user.id, 14),
+                    getWeightHistory(session.user.id, 30), // Fetch 30 days for chart/trends
                     getMealEntries(session.user.id, getUserLocalDate()),
                     getDailyLogsRange(
                         session.user.id,
-                        getUserLocalDate(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)), // Last 14 days
+                        getUserLocalDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)), // Last 30 days for Month view
                         getUserLocalDate()
                     ),
                     getActiveWorkoutPlan(session.user.id),
@@ -65,7 +65,7 @@ export default function DashboardPage() {
                 }
                 setWeightHistory(weights);
                 setTodayMeals(meals);
-                setWeekLogs(logs);
+                setHistoryLogs(logs);
                 setActivePlan(plan);
             } catch (error) {
                 console.error("Failed to load dashboard data:", error);
@@ -135,19 +135,112 @@ export default function DashboardPage() {
         }), { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 });
     }, [todayMeals]);
 
+    // Derived state for time range aggregation
+    const aggregatedMetrics = useMemo(() => {
+        if (range === 'hoy') {
+            return {
+                calories: todayTotals.calories,
+                protein: todayTotals.protein_g,
+                carbs: todayTotals.carbs_g,
+                fat: todayTotals.fat_g,
+                label: "Objetivo hoy",
+                subLabel: `Plan ${mode.charAt(0).toUpperCase() + mode.slice(1)}`,
+                rateLabel: "Ritmo estimado",
+                rateValue: projection?.weekly_rate || 0,
+                isProjected: true
+            };
+        }
+
+        const days = range === 'semana' ? 7 : 30;
+
+        // Normalize to midnight to include the full boundary day
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        cutoffDate.setHours(0, 0, 0, 0);
+
+        const cutoffStr = getUserLocalDate(cutoffDate);
+
+        // Filter logs using string comparison (robust for YYYY-MM-DD)
+        const validLogs = historyLogs.filter(l => l.log_date >= cutoffStr);
+
+        if (validLogs.length === 0) return {
+            calories: 0, protein: 0, carbs: 0, fat: 0,
+            label: `Promedio (${days}d)`,
+            subLabel: "Sin datos registrados",
+            rateLabel: "Ritmo observado",
+            rateValue: 0,
+            isProjected: false
+        };
+
+        const sums = validLogs.reduce((acc, log) => ({
+            calories: acc.calories + log.calories_consumed,
+            protein: acc.protein + log.protein_g,
+            carbs: acc.carbs + log.carbs_g,
+            fat: acc.fat + log.fat_g
+        }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+        // Calculate Average
+        const avg = {
+            calories: Math.round(sums.calories / validLogs.length),
+            protein: Math.round(sums.protein / validLogs.length),
+            carbs: Math.round(sums.carbs / validLogs.length),
+            fat: Math.round(sums.fat / validLogs.length)
+        };
+
+        // Calculate Observed Rate if weight data exists within this range
+        let observedRate = 0;
+        const weightsInRange = weightHistory
+            .filter(w => new Date(w.recorded_at) >= cutoffDate)
+            .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+
+        if (weightsInRange.length >= 2) {
+            const first = weightsInRange[0];
+            const last = weightsInRange[weightsInRange.length - 1];
+            // Difference in weeks
+            const weeksDiff = (new Date(last.recorded_at).getTime() - new Date(first.recorded_at).getTime()) / (1000 * 60 * 60 * 24 * 7);
+
+            if (weeksDiff > 0.1) { // At least some time passed
+                // Weight Loss = First - Last (Positive value means loss)
+                observedRate = Number(((first.weight_kg - last.weight_kg) / weeksDiff).toFixed(2));
+            }
+        }
+
+        return {
+            ...avg,
+            label: `Promedio (${days}d)`,
+            subLabel: `${validLogs.length} días registrados`,
+            rateLabel: "Ritmo observado",
+            rateValue: observedRate,
+            isProjected: false
+        };
+    }, [range, todayTotals, historyLogs, projection, mode, weightHistory]);
+
     const adherence = useMemo(() => {
-        if (weekLogs.length === 0) return 0;
-        const daysWithData = weekLogs.filter(l => l.calories_consumed > 0).length;
+        // Use last 7 days for adherence score
+        const recentLogs = historyLogs.slice(-7);
+        if (recentLogs.length === 0) return 0;
+        const daysWithData = recentLogs.filter(l => l.calories_consumed > 0).length;
+        // Normalize adherence to 7 days
         return Math.round((daysWithData / 7) * 100);
-    }, [weekLogs]);
+    }, [historyLogs]);
 
     const weeklyChartData = useMemo(() => {
-        const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-        return days.map((d, i) => ({
-            d,
-            kcal: weekLogs[i]?.calories_consumed || 0,
-        }));
-    }, [weekLogs]);
+        // Map last 7 days
+        const data = [];
+        const daysMap = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = getUserLocalDate(d); // YYYY-MM-DD
+            const log = historyLogs.find(l => l.log_date === dateStr);
+            data.push({
+                d: daysMap[d.getDay()],
+                kcal: log?.calories_consumed || 0
+            });
+        }
+        return data;
+    }, [historyLogs]);
 
     // Phase 4: Adaptation Engine - Real-time weight progress alerts
     const adaptationAlerts = useMemo(() => {
@@ -306,9 +399,9 @@ export default function DashboardPage() {
             <Card>
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
                     <div>
-                        <h2 className="text-xl font-semibold">Objetivo de hoy</h2>
+                        <h2 className="text-xl font-semibold">{aggregatedMetrics.label}</h2>
                         <p className="text-sm text-gray-500">
-                            Calorías restantes · Plan {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                            {aggregatedMetrics.subLabel}
                         </p>
                     </div>
                     <Segmented
@@ -330,9 +423,10 @@ export default function DashboardPage() {
                                 <Flame className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
-                                <div className="text-sm text-gray-500">Objetivo diario</div>
-                                <div className="text-4xl font-bold">{projection.daily_calories} <span className="text-lg font-normal text-gray-500">kcal</span></div>
-                                {(projection.exercise_boost || 0) > 0 && (
+                                <div className="text-sm text-gray-500">{range === 'hoy' ? 'Objetivo diario' : 'Ingesta Media'}</div>
+                                <div className="text-4xl font-bold">{aggregatedMetrics.calories} <span className="text-lg font-normal text-gray-500">kcal</span></div>
+                                <div className="text-xs text-gray-400">Meta: {projection.daily_calories} kcal</div>
+                                {(projection.exercise_boost || 0) > 0 && range === 'hoy' && (
                                     <div className="text-xs font-semibold text-purple-600 mt-1 flex items-center gap-1">
                                         <Zap className="h-3 w-3" />
                                         +{(projection.exercise_boost || 0)} kcal quemadas (extra)
@@ -343,55 +437,67 @@ export default function DashboardPage() {
 
                         <div className="grid grid-cols-3 gap-3 mb-4">
                             <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700">
-                                <div className="text-xs text-gray-500">Consumidas</div>
-                                <div className="text-lg font-semibold mt-1">{todayTotals.calories}</div>
+                                <div className="text-xs text-gray-500">{range === 'hoy' ? 'Consumidas' : 'Ingesta'}</div>
+                                <div className="text-lg font-semibold mt-1">{aggregatedMetrics.calories}</div>
                             </div>
                             <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700">
                                 <div className="text-xs text-gray-500">Restantes</div>
-                                <div className="text-lg font-semibold mt-1">{remaining}</div>
+                                <div className="text-lg font-semibold mt-1">{Math.max(0, projection.daily_calories - aggregatedMetrics.calories)}</div>
                             </div>
                             <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700">
-                                <div className="text-xs text-gray-500">Déficit</div>
-                                <div className="text-lg font-semibold mt-1">-{metrics.deficit_or_surplus}</div>
+                                <div className="text-xs text-gray-500">Déficit Est.</div>
+                                <div className="text-lg font-semibold mt-1">{projection.daily_calories - aggregatedMetrics.calories - metrics.bmr < 0 ? metrics.bmr + (projection.daily_calories - aggregatedMetrics.calories) : "-"}</div>
                             </div>
                         </div>
 
-                        <ProgressBar value={todayTotals.calories} max={projection.daily_calories} />
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <ProgressBar value={aggregatedMetrics.calories} max={projection.daily_calories} color="purple" />
+
+                        <div className="flex items-center gap-2 mt-4">
                             <Chip color="purple">Plan: {mode}</Chip>
-                            <Chip>Actividad: {profile.activity_level}</Chip>
-                            <Chip>Dieta: {profile.diet_type}</Chip>
+                            <Chip color="gray">Actividad: {profile.activity_level}</Chip>
+                            <Chip color="gray">Dieta: {profile.diet_type}</Chip>
                         </div>
                     </div>
 
-                    {/* Right: Mode selector */}
-                    <div className="space-y-4">
-                        <div className="text-sm text-gray-500">Velocidad de progreso</div>
-                        <Segmented
-                            options={[
-                                { label: "Conservador", value: "conservador" },
-                                { label: "Moderado", value: "moderado" },
-                                { label: "Acelerado", value: "acelerado" },
-                            ]}
-                            value={mode}
-                            onChange={(v) => {
-                                console.log('🔄 Mode changed to:', v);
-                                setMode(v as any);
-                            }}
-                        />
-                        <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500">Ritmo estimado</span>
-                                <span className="text-lg font-semibold">{projection.weekly_rate} kg/sem</span>
+                    {/* Right: Progress & Rate */}
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/50">
+                        <div className="flex justify-between items-start mb-6">
+                            <div>
+                                <div className="text-sm text-gray-500 mb-1">Velocidad de progreso</div>
+                                <Segmented
+                                    options={[
+                                        { label: "Conservador", value: "conservador" },
+                                        { label: "Moderado", value: "moderado" },
+                                        { label: "Acelerado", value: "acelerado" },
+                                    ]}
+                                    value={mode}
+                                    onChange={(v) => setMode(v as any)}
+                                />
                             </div>
-                            <div className="mt-2 text-xs" style={{ color: projection.color }}>{projection.risk_msg}</div>
                         </div>
+
+                        <div className="flex items-end justify-between mb-2">
+                            <div>
+                                <div className="text-sm text-gray-500 mb-1">{aggregatedMetrics.rateLabel}</div>
+                                <div className="text-3xl font-bold">{aggregatedMetrics.rateValue} <span className="text-base font-normal text-gray-500">kg/sem</span></div>
+                            </div>
+                        </div>
+
+                        {aggregatedMetrics.isProjected ? (
+                            <div className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                                <CheckCircle className="h-3 w-3" /> Ritmo saludable y sostenible
+                            </div>
+                        ) : (
+                            <div className="text-xs text-zinc-500 font-medium flex items-center gap-1">
+                                <Scale className="h-3 w-3" /> Basado en tu historial de peso
+                            </div>
+                        )}
                     </div>
                 </div>
             </Card>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            < div className="grid grid-cols-1 md:grid-cols-4 gap-4" >
                 <StatCard icon={<Scale className="h-5 w-5" />} label="Peso actual" value={`${profile.weight_kg} kg`} caption={`IMC: ${metrics.bmi} (${metrics.bmi_category})`} />
                 <StatCard icon={<Target className="h-5 w-5" />} label="Meta" value={`${profile.target_weight_kg} kg`} caption={`Faltan ${Math.abs(profile.weight_kg - profile.target_weight_kg).toFixed(1)} kg`} />
                 <StatCard icon={<Calendar className="h-5 w-5" />} label="Fecha objetivo" value={projection.target_date} caption={activePlan ? "📅 Meta acelerada con ejercicio" : `~${projection.weeks} semanas`} />
@@ -401,26 +507,26 @@ export default function DashboardPage() {
                     value={`${(projection as any).effectiveTDEE || metrics.tdee} kcal`}
                     caption={activePlan ? `Base: ${metrics.tdee} + Ejercicio` : `TMB: ${metrics.bmr} kcal`}
                 />
-            </div>
+            </div >
 
             {/* Macros Card */}
             <Card>
-                <h3 className="text-lg font-semibold mb-4">Macros de hoy</h3>
+                <h3 className="text-lg font-semibold mb-4">Macros ({range === 'hoy' ? 'hoy' : 'promedio'})</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
                         <div className="text-sm text-gray-500">Proteína</div>
-                        <div className="text-2xl font-semibold mt-1">{todayTotals.protein_g} / {macros.protein_g} g</div>
-                        <div className="mt-3"><ProgressBar value={todayTotals.protein_g} max={macros.protein_g} /></div>
+                        <div className="text-2xl font-semibold mt-1">{aggregatedMetrics.protein} / {macros.protein_g} g</div>
+                        <div className="mt-3"><ProgressBar value={aggregatedMetrics.protein} max={macros.protein_g} color="purple" /></div>
                     </div>
                     <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
                         <div className="text-sm text-gray-500">Carbohidratos</div>
-                        <div className="text-2xl font-semibold mt-1">{todayTotals.carbs_g} / {macros.carbs_g} g</div>
-                        <div className="mt-3"><ProgressBar value={todayTotals.carbs_g} max={macros.carbs_g} /></div>
+                        <div className="text-2xl font-semibold mt-1">{aggregatedMetrics.carbs} / {macros.carbs_g} g</div>
+                        <div className="mt-3"><ProgressBar value={aggregatedMetrics.carbs} max={macros.carbs_g} color="purple" /></div>
                     </div>
                     <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
                         <div className="text-sm text-gray-500">Grasas</div>
-                        <div className="text-2xl font-semibold mt-1">{todayTotals.fat_g} / {macros.fat_g} g</div>
-                        <div className="mt-3"><ProgressBar value={todayTotals.fat_g} max={macros.fat_g} /></div>
+                        <div className="text-2xl font-semibold mt-1">{aggregatedMetrics.fat} / {macros.fat_g} g</div>
+                        <div className="mt-3"><ProgressBar value={aggregatedMetrics.fat} max={macros.fat_g} color="purple" /></div>
                     </div>
                 </div>
             </Card>
@@ -457,7 +563,7 @@ export default function DashboardPage() {
                         </Button>
                     </div>
                 </Card>
-            </div>
-        </motion.div>
+            </div >
+        </motion.div >
     );
 }

@@ -192,28 +192,19 @@ export async function getActiveWorkoutPlan(userId: string): Promise<WorkoutPlan 
     const supabase = createClient();
 
     const { data, error } = await supabase
-        .from('saved_routines')
+        .from('workout_plans')
         .select('*')
         .eq('user_id', userId)
         .eq('is_active', true)
+        .order('updated_at', { ascending: false }) // Get most recently updated active plan
+        .limit(1)
         .single();
 
     if (error && error.code !== 'PGRST116') throw error;
 
     if (!data) return null;
 
-    return {
-        id: data.id,
-        user_id: data.user_id,
-        name: data.name,
-        description: data.configuration?.goal || '',
-        days_per_week: data.configuration?.daysAvailable || 0,
-        total_met_hours: data.total_met_hours || data.brain_state?.total_met_hours || 0,
-        estimated_calories_weekly: data.estimated_calories_weekly || data.brain_state?.estimated_calories_weekly || 0,
-        is_active: data.is_active,
-        created_at: data.created_at,
-        updated_at: data.created_at
-    };
+    return data;
 }
 
 /**
