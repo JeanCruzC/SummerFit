@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { ArrowRight, Star, Zap, Smartphone, Utensils, TrendingUp, ChevronDown, Check, Brain, Rocket, BarChart3, Users, Heart, Target, Award, Clock, Shield } from "lucide-react";
+import { ArrowRight, Star, Zap, Smartphone, Utensils, TrendingUp, ChevronDown, Check, Brain, Rocket, BarChart3, Users, Heart, Target, Award, Clock, Shield, AlertTriangle, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useState, useEffect, useRef } from "react";
 
@@ -131,9 +131,11 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <Star className="h-4 w-4 text-purple-600 fill-purple-600" />
-                <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
-                  ★★★★★ 4.9/5 | +127,000 personas transformadas
+                <div className="flex items-center gap-1 text-purple-600">
+                  {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 fill-purple-600" />)}
+                </div>
+                <span className="text-xs font-bold text-purple-700 uppercase tracking-wider ml-1">
+                  4.9/5 | +127,000 personas transformadas
                 </span>
               </motion.div>
 
@@ -203,7 +205,9 @@ export default function Landing() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                ✓ Sin tarjeta de crédito · ✓ Acceso completo gratis
+                <span className="flex items-center gap-1"><Check className="h-4 w-4 text-emerald-500" /> Sin tarjeta de crédito</span>
+                <span className="hidden sm:inline"> · </span>
+                <span className="flex items-center gap-1"><Check className="h-4 w-4 text-emerald-500" /> Acceso completo gratis</span>
               </motion.p>
             </motion.div>
 
@@ -571,10 +575,10 @@ function ComparisonTable() {
 }
 
 function renderCheckmark(value: boolean | string) {
-  if (value === true) return <span className="text-2xl">✅</span>;
-  if (value === "double") return <span className="text-2xl">✅✅</span>;
-  if (value === "partial") return <span className="text-2xl">⚠️</span>;
-  return <span className="text-2xl">❌</span>;
+  if (value === true) return <Check className="h-6 w-6 text-emerald-500" />;
+  if (value === "double") return <div className="flex justify-center"><Check className="h-6 w-6 text-emerald-500" /><Check className="h-6 w-6 text-emerald-500 -ml-3" /></div>;
+  if (value === "partial") return <AlertTriangle className="h-6 w-6 text-amber-500" />;
+  return <X className="h-6 w-6 text-red-400" />;
 }
 
 function StatCard({ value, label }: { value: string, label: string }) {

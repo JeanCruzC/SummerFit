@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Check, TrendingDown, TrendingUp, Minus, Target, Flame, Scale, Ruler } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, TrendingDown, TrendingUp, Minus, Target, Flame, Scale, Ruler, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 // App colors - Purple theme to match the rest of the app
@@ -444,7 +444,7 @@ function SpeedStep({ formData, onChange }: any) {
                 ))}
                 {speed.cons.map((c, i) => (
                   <div key={i} className="text-xs text-red-500 flex items-center gap-1">
-                    ⛔ {c}
+                    <AlertCircle className="h-3 w-3" /> {c}
                   </div>
                 ))}
               </div>
