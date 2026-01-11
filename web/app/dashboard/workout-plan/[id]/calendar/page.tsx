@@ -62,15 +62,41 @@ export default function WorkoutCalendarPage() {
                 .eq('saved_routine_id', planId)
                 .order('day_of_week');
 
-            const scheduledDays = (scheduleData || []).map(s => {
-                const routineDay = routineData.schedule.days.find((d: any) => d.id === s.routine_day_id);
-                return {
-                    ...s,
-                    day_name: routineDay?.dayName || 'Día',
-                    exercises: routineDay?.exercises || []
-                };
-            });
+            let scheduledDays: any[] = [];
 
+            if (scheduleData && scheduleData.length > 0) {
+                // Use user_schedule if available
+                scheduledDays = scheduleData.map(s => {
+                    const routineDay = routineData.schedule.days.find((d: any) => d.id === s.routine_day_id);
+                    return {
+                        ...s,
+                        day_name: routineDay?.dayName || 'Día',
+                        exercises: routineDay?.exercises || []
+                    };
+                });
+            } else if (routineData.recommended_schedule && routineData.schedule?.days) {
+                // FALLBACK: Build schedule from recommended_schedule
+                // recommended_schedule = ['Upper', 'Lower', 'Rest', ...] (7 items)
+                // Map to day_of_week: 0=Sunday, 1=Monday, etc.
+                const dbDayIndices = [1, 2, 3, 4, 5, 6, 0]; // Mon->1, Tue->2, ..., Sun->0
+                let routineDayCounter = 0;
+
+                for (let i = 0; i < routineData.recommended_schedule.length; i++) {
+                    const activity = routineData.recommended_schedule[i];
+                    if (activity !== 'Rest') {
+                        const routineDay = routineData.schedule.days[routineDayCounter % routineData.schedule.days.length];
+                        scheduledDays.push({
+                            day_of_week: dbDayIndices[i],
+                            day_name: routineDay?.dayName || activity,
+                            exercises: routineDay?.exercises || [],
+                            routine_day_id: routineDay?.id
+                        });
+                        routineDayCounter++;
+                    }
+                }
+            }
+
+            console.log('Calendar schedule:', scheduledDays); // Debug
             setSchedule(scheduledDays);
 
             // Fetch Profile & Calculate Projection
@@ -408,8 +434,8 @@ export default function WorkoutCalendarPage() {
                                             {/* Phase 5: Progression Suggestion */}
                                             {progression.action !== 'maintain' && (
                                                 <div className={`mt-3 p-2 rounded-lg text-xs flex items-center gap-2 ${progression.action === 'increase'
-                                                        ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                                                        : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                                                    ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                                                    : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
                                                     }`}>
                                                     {progression.action === 'increase' ? (
                                                         <TrendingUp className="h-4 w-4" />

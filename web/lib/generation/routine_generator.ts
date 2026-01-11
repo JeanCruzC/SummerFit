@@ -404,8 +404,26 @@ export class RoutineGenerator {
             met_hours: this.calculateTotalMetHours(generatedDays, cardioSession)
         };
 
+        // Translate names to Spanish
+        const goalNameES: Record<string, string> = {
+            'fat_loss': 'Definición',
+            'muscle_gain': 'Volumen',
+            'recomp': 'Recomposición',
+            'maintenance': 'Mantenimiento'
+        };
+        const splitNameES: Record<string, string> = {
+            'upper_lower': 'Tren Superior/Inferior',
+            'ppl': 'Torso/Pierna/Empuje',
+            'full_body': 'Cuerpo Completo',
+            'ppl_6': 'PPL 6 Días',
+            'bro_split': 'División Clásica'
+        };
+
+        const goalES = goalNameES[request.goal] || request.goal;
+        const splitES = splitNameES[recommendedSplit] || recommendedSplit.replace('_', ' ');
+
         return {
-            name: `${this.capitalize(request.goal)} ${this.capitalize(recommendedSplit)} Protocol`,
+            name: `Rutina ${goalES} - ${splitES}`,
             description: diagnosis.recommendations.split.description,
             split: recommendedSplit,
             days: generatedDays,

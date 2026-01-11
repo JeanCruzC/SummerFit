@@ -74,33 +74,41 @@ export default function PlanEditorPage({ params }: { params: { id: string } }) {
                     .eq('id', planId)
                     .single();
 
+                console.log('Saved routine schedule:', savedRoutine?.schedule); // Debug
+
                 if (savedRoutine?.schedule?.days) {
                     // Transform saved_routines format to WorkoutPlanExercise format
-                    // Use negative IDs to distinguish from real DB IDs (they're read-only anyway)
+                    // Structure: schedule.days[].exercises[] = { exercise: { id, title, ... }, sets, reps, rest }
                     let tempId = -1;
-                    planExercises = savedRoutine.schedule.days.flatMap((day: any, dayIndex: number) =>
-                        (day.exercises || []).map((ex: any, exIndex: number) => ({
-                            id: tempId--,
-                            workout_plan_id: planId,
-                            exercise_id: typeof ex.id === 'number' ? ex.id : exIndex,
-                            day_of_week: dayIndex + 1,
-                            order_in_day: exIndex + 1,
-                            sets: ex.sets || 3,
-                            reps: ex.reps || 10,
-                            rir: ex.rir !== undefined ? ex.rir : 2,
-                            rest_seconds: ex.rest || 60,
-                            duration_minutes: ex.duration || 5,
-                            isFromSavedRoutine: true, // Mark as read-only
-                            exercise: {
-                                id: typeof ex.id === 'number' ? ex.id : exIndex,
-                                title: ex.name || ex.title || ex.exercise?.title,
-                                body_part: ex.bodyPart || ex.muscle || ex.exercise?.body_part,
-                                met: ex.met || ex.exercise?.met || 5,
-                                equipment: ex.equipment || ex.exercise?.equipment,
-                                image_url: ex.gifUrl || ex.image_url || ex.exercise?.image_url
-                            }
-                        }))
-                    );
+                    planExercises = savedRoutine.schedule.days.flatMap((day: any, dayIndex: number) => {
+                        const exercises = day.exercises || [];
+                        return exercises.map((item: any, exIndex: number) => {
+                            // The structure is { exercise: {...}, sets, reps, rest }
+                            const ex = item.exercise || item; // Fallback if flat structure
+                            return {
+                                id: tempId--,
+                                workout_plan_id: planId,
+                                exercise_id: ex.id || exIndex,
+                                day_of_week: dayIndex + 1,
+                                order_in_day: exIndex + 1,
+                                sets: item.sets || 3,
+                                reps: item.reps || 10,
+                                rir: item.rir ?? 2,
+                                rest_seconds: typeof item.rest === 'string' ? parseInt(item.rest) : (item.rest || 60),
+                                duration_minutes: item.duration_minutes || 5,
+                                isFromSavedRoutine: true,
+                                exercise: {
+                                    id: ex.id || exIndex,
+                                    title: ex.title || ex.name || 'Ejercicio',
+                                    body_part: ex.body_part || ex.bodyPart || ex.muscle || '',
+                                    met: ex.met || 5,
+                                    equipment: ex.equipment || '',
+                                    image_url: ex.image_url || ex.gifUrl || ''
+                                }
+                            };
+                        });
+                    });
+                    console.log('Transformed exercises:', planExercises.length); // Debug
                 }
             }
             setExercises(planExercises);
