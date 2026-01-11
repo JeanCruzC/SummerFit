@@ -219,7 +219,7 @@ export interface WorkoutPlan {
 }
 
 export interface WorkoutPlanExercise {
-    id?: number | string;
+    id?: number;
     workout_plan_id: number;
     exercise_id: number;
     day_of_week: number; // 1-7
@@ -234,4 +234,6 @@ export interface WorkoutPlanExercise {
     created_at?: string;
     // Populated by join
     exercise?: Exercise;
+    // Flag for exercises loaded from saved_routines (not editable directly)
+    isFromSavedRoutine?: boolean;
 }
