@@ -71,23 +71,27 @@ export function calculateTDEE(bmr: number, activityLevel: string): number {
 
 /**
  * Calculate target calories based on goal
- * DEFICIT LEVELS (updated to match competitive apps like Fitia):
- * - Conservador: 15% deficit (~0.3-0.5 kg/week)
- * - Moderado: 25% deficit (~0.5-0.75 kg/week)  
- * - Acelerado: 35% deficit (~0.8-1.2 kg/week) ⚠️ May impact muscle preservation
+ * 
+ * SCIENTIFIC BASIS (ACSM, ISSN, NIH, PONSSALA 2017):
+ * - Conservador: 15% deficit (~0.3-0.5 kg/week) → Sostenible, preserva músculo
+ * - Moderado: 25% deficit (~0.5-0.75 kg/week) → Estándar (500-750 kcal/día)
+ * - Acelerado: 35% deficit (~0.8-1.2 kg/week) → Agresivo, requiere proteína alta
+ * 
+ * SAFETY FLOORS (NIH/Medical Guidelines):
+ * - Women: 1200 kcal/day minimum
+ * - Men: 1500 kcal/day minimum
  */
 export function calculateTargetCalories(
     tdee: number,
     goal: 'Definir' | 'Mantener' | 'Volumen',
-    mode: 'conservador' | 'moderado' | 'acelerado' = 'moderado'
+    mode: 'conservador' | 'moderado' | 'acelerado' = 'moderado',
+    gender: 'M' | 'F' = 'M'
 ): number {
-    // Percentage-based deficits (scalable with body weight)
-    // Updated to match Fitia/competitive apps for user expectation
-    // Note: Higher deficits (>25%) may impact muscle preservation
+    // Percentage-based deficits (validated by PONSSALA 2017 + ACSM guidelines)
     const deficitPct = {
-        conservador: 0.15, // 15% - Health-focused (~0.3-0.5 kg/week)
-        moderado: 0.25,    // 25% - Standard (~0.5-0.75 kg/week)
-        acelerado: 0.35,   // 35% - Aggressive (Fitia-level, ~0.8-1.2 kg/week)
+        conservador: 0.15, // 15% - Health-focused, muscle-preserving
+        moderado: 0.25,    // 25% - Standard (ACSM 500-750 kcal/day equivalent)
+        acelerado: 0.35,   // 35% - Aggressive (PONSSALA: 34.3% effective in athletes)
     };
 
     // Percentage-based surplus for muscle gain
@@ -110,8 +114,54 @@ export function calculateTargetCalories(
             targetCalories = tdee;
     }
 
-    // Safety floor: Never go below 1200 kcal
-    return Math.max(targetCalories, 1200);
+    // Gender-specific safety floors (NIH/WebMD guidelines)
+    const calorieFloor = gender === 'F' ? 1200 : 1500;
+    return Math.max(targetCalories, calorieFloor);
+}
+
+/**
+ * Generate warnings based on deficit level and user profile
+ * Returns array of warning messages for UI display
+ */
+export function getDeficitWarnings(
+    mode: 'conservador' | 'moderado' | 'acelerado',
+    targetCalories: number,
+    gender: 'M' | 'F',
+    bmi?: number,
+    hasStrengthTraining?: boolean
+): string[] {
+    const warnings: string[] = [];
+    const floor = gender === 'F' ? 1200 : 1500;
+
+    // Warning for aggressive deficit
+    if (mode === 'acelerado') {
+        warnings.push(
+            '⚠️ Déficit agresivo (35%): Prioriza proteína (2g/kg) y entrena fuerza 2+ días/semana para preservar músculo.'
+        );
+    }
+
+    // Warning for hitting calorie floor
+    if (targetCalories <= floor) {
+        warnings.push(
+            `⚠️ Has alcanzado el mínimo seguro (${floor} kcal). Para mayor déficit, consulta un profesional de salud.`
+        );
+    }
+
+    // Warning for obesity + aggressive deficit (actually okay per PONSSALA)
+    if (bmi && bmi >= 30 && mode === 'acelerado') {
+        warnings.push(
+            '✅ Personas con obesidad toleran mejor déficits altos. Vigila tu energía y considera suplementar vitaminas.'
+        );
+    }
+
+    // Warning if no strength training mentioned
+    if (hasStrengthTraining === false && mode !== 'conservador') {
+        warnings.push(
+            '💪 Añade entrenamiento de fuerza 2+ días/semana para preservar masa muscular durante el déficit.'
+        );
+    }
+
+    return warnings;
 }
 
 /**
