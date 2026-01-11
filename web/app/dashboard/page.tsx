@@ -10,7 +10,7 @@ import { getUserLocalDate } from "@/lib/date";
 import { createClient } from "@/lib/supabase/client";
 import { getProfile, getWeightHistory, getMealEntries, getDailyLogsRange } from "@/lib/supabase/database";
 import { getActiveWorkoutPlan } from "@/lib/supabase/exercises";
-import { calculateHealthMetrics, calculateMacros, calculateProjectionWithExercise } from "@/lib/calculations";
+import { calculateHealthMetrics, calculateMacros, calculateProjectionWithExercise, getDeficitWarnings, calculateBMI } from "@/lib/calculations";
 import { getSupplementRecommendations } from "@/lib/supplements";
 import { AdaptationEngine } from "@/lib/intelligence/adaptation_engine";
 import { UserProfile, WorkoutPlan } from "@/types";
@@ -152,6 +152,20 @@ export default function DashboardPage() {
         );
     }, [profile, weightHistory]);
 
+    // Scientific deficit warnings (ACSM/ISSN/NIH based)
+    const deficitWarnings = useMemo(() => {
+        if (!profile || !projection) return [];
+        const bmi = calculateBMI(profile.weight_kg, profile.height_cm);
+        const hasStrengthTraining = !!activePlan; // Assume they have training if they have a plan
+        return getDeficitWarnings(
+            mode,
+            projection.daily_calories,
+            profile.gender as 'M' | 'F',
+            bmi,
+            hasStrengthTraining
+        );
+    }, [profile, projection, mode, activePlan]);
+
     if (loading || !profile || !metrics || !projection || !macros) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -193,25 +207,77 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Warnings */}
+            {/* Scientific Deficit Tips - Friendly styling */}
+            {deficitWarnings.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {deficitWarnings.map((warning, i) => {
+                        // Determine color based on emoji/type
+                        const isPositive = warning.startsWith('✅');
+                        const isStrength = warning.startsWith('💪');
+                        const isWarning = warning.startsWith('⚠️');
+
+                        const bgColor = isPositive
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+                            : isStrength
+                                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                                : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
+
+                        const textColor = isPositive
+                            ? 'text-emerald-800 dark:text-emerald-200'
+                            : isStrength
+                                ? 'text-blue-800 dark:text-blue-200'
+                                : 'text-amber-800 dark:text-amber-200';
+
+                        return (
+                            <div
+                                key={i}
+                                className={`p-4 rounded-2xl border ${bgColor} ${textColor}`}
+                            >
+                                <p className="text-sm font-medium leading-relaxed">
+                                    {warning}
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Projection Warnings */}
             {projection.warnings.length > 0 && (
-                <Alert type="info">
-                    <div className="font-semibold mb-1">💡 Recomendaciones</div>
-                    {projection.warnings.map((w, i) => <p key={i}>{w}</p>)}
-                </Alert>
+                <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                    <div className="font-semibold text-purple-800 dark:text-purple-200 mb-2">💡 Recomendaciones</div>
+                    <div className="space-y-1">
+                        {projection.warnings.map((w, i) => (
+                            <p key={i} className="text-sm text-purple-700 dark:text-purple-300">{w}</p>
+                        ))}
+                    </div>
+                </div>
             )}
 
             {/* Adaptation Alerts - Real-time weight progress feedback */}
             {adaptationAlerts && adaptationAlerts.triggers.length > 0 && (
-                <Alert type={adaptationAlerts.priority === 'high' ? 'warning' : 'info'}>
-                    <div className="font-semibold mb-2">🧠 Coach Inteligente</div>
-                    <p className="text-sm mb-2">{adaptationAlerts.summary}</p>
+                <div className={`p-4 rounded-2xl border ${adaptationAlerts.priority === 'high'
+                        ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+                        : 'bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800'
+                    }`}>
+                    <div className={`font-semibold mb-2 ${adaptationAlerts.priority === 'high'
+                            ? 'text-orange-800 dark:text-orange-200'
+                            : 'text-sky-800 dark:text-sky-200'
+                        }`}>🧠 Coach Inteligente</div>
+                    <p className={`text-sm mb-2 ${adaptationAlerts.priority === 'high'
+                            ? 'text-orange-700 dark:text-orange-300'
+                            : 'text-sky-700 dark:text-sky-300'
+                        }`}>{adaptationAlerts.summary}</p>
                     <ul className="list-disc list-inside text-sm space-y-1">
                         {adaptationAlerts.triggers.map((t, i) => (
-                            <li key={i}>{t.recommendation}</li>
+                            <li key={i} className={
+                                adaptationAlerts.priority === 'high'
+                                    ? 'text-orange-700 dark:text-orange-300'
+                                    : 'text-sky-700 dark:text-sky-300'
+                            }>{t.recommendation}</li>
                         ))}
                     </ul>
-                </Alert>
+                </div>
             )}
 
             {/* Active Routine Widget */}
